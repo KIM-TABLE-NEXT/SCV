@@ -11,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -39,6 +40,12 @@ public class Board {
   @JoinColumn(name="owner_id",nullable = false,foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
   private User owner;
 
-
-
+  @Builder
+  public Board(String name, String description, String color, User owner) {
+    this.name = name;
+    this.description = description;
+    this.color = color;
+    this.state = true;
+    this.owner = owner;
+  }
 }
