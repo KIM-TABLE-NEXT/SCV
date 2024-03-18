@@ -39,7 +39,11 @@ public class BoardController {
     public List<Board> getBoards(
         // @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
-        return null;
+        // userDetails에서 가져올 User 임시 생성
+        User user = new User();
+
+        return boardService.getBoards(user);
+
     }
 
     @PatchMapping("/{boardId}")

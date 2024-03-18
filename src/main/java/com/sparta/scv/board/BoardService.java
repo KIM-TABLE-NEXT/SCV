@@ -3,6 +3,7 @@ package com.sparta.scv.board;
 import com.sparta.scv.boardmember.BoardMember;
 import com.sparta.scv.boardmember.BoardMemberRepository;
 import com.sparta.scv.user.User;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,5 +25,11 @@ public class BoardService {
         boardRepository.save(board);
         boardMemberRepository.save(new BoardMember(user, board));
         return board.getId();
+    }
+
+    public List<Board> getBoards(User user) {
+
+        return boardRepository.findByUser_id(user.getId());
+
     }
 }
