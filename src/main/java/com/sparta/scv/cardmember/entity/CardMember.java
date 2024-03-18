@@ -32,4 +32,9 @@ public class CardMember {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "card_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
   private Card card;
+
+  public CardMember(Card card, User user){
+    this.card = card;
+    this.user = user;
+  }
 }
