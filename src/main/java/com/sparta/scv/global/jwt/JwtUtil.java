@@ -45,8 +45,8 @@ public class JwtUtil {
   public String createToken(Long id) {
     Date date = new Date();
     // 토큰 만료시간
-    // 60분
-    long TOKEN_TIME = 60 * 60 * 1000L;
+    // 2시간
+    long TOKEN_TIME = 60 * 60 * 2000L;
     Claims claims = Jwts.claims().setSubject("user");
     claims.put("userId",id);
 
@@ -78,6 +78,7 @@ public class JwtUtil {
 
   // 토큰 검증
   public boolean validateToken(String token) {
+    token = substringToken(token);
     try {
       Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
       return true;
@@ -107,13 +108,12 @@ public class JwtUtil {
   }
   //
   public Long giveUserId(String token){
-    token = substringToken(token);
-
+    String t = token.substring(6);
     JwtParser jwtParser = Jwts.parserBuilder()
         .setSigningKey(secretKey)
         .build();
     Claims claims = jwtParser
-        .parseClaimsJws(token)
+        .parseClaimsJws(t)
         .getBody();
     return (long)(int) claims.get("userId");
   }
