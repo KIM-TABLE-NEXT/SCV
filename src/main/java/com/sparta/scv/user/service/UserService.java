@@ -62,4 +62,9 @@ public class UserService {
     }
     return 200L;
   }
+
+  public Long userLogout(HttpServletResponse servletResponse) {
+    servletResponse.setHeader(Auth,null);
+    return 200L;
+  }
 }
