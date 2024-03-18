@@ -26,7 +26,7 @@ public class BoardColumn {
   private String columnName;
 
   @Column(nullable = false, unique = true)
-  private Integer order;
+  private Integer position;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "board_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
