@@ -49,19 +49,17 @@ public class UserService {
   //
   @Transactional
   public Long update(UpdateRequestDto requestDto, User user) throws NoSuchElementException {
-    User updateuser = user;
-    updateuser.update(requestDto);
-    return updateuser.getId();
+    user.update(requestDto);
+    return user.getId();
   }
 
   @Transactional
   public Long delete(User user) throws NoSuchElementException {
-    long id = user.getId();
     try {
       userRepository.delete(user);
     }catch (Exception e){
       throw new NoSuchElementException("해당 유저를 지우는데 실패");
     }
-    return id;
+    return 200L;
   }
 }
