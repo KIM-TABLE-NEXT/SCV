@@ -3,6 +3,7 @@ package com.sparta.scv.user.service;
 import com.sparta.scv.global.jwt.JwtUtil;
 import com.sparta.scv.user.dto.LoginRequestDto;
 import com.sparta.scv.user.dto.SignupDto;
+import com.sparta.scv.user.dto.UpdateRequestDto;
 import com.sparta.scv.user.entity.User;
 import com.sparta.scv.user.repository.UserNamePassword;
 import com.sparta.scv.user.repository.UserRepository;
@@ -11,6 +12,7 @@ import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -33,13 +35,33 @@ public class UserService {
     String username = requestDto.getUsername();
     String password = requestDto.getPassword();
     UserNamePassword user;
+    String token;
     try {
        user = userRepository.findByUsernameAndPassword(username,password);
-    }catch (NoSuchElementException e){
+       token = jwtUtil.createToken(user.getId());
+    }catch (Exception e){
       throw new NoSuchElementException("유저의 아이디 혹은 비밀 번호가 틀렸습니다.");
     }
-    String token = jwtUtil.createToken(user.getId());
     jwtUtil.addJwtToHeader(token,httpServletResponse);
     return jwtUtil.giveUserId(token);
+  }
+
+  //
+  @Transactional
+  public Long update(UpdateRequestDto requestDto, User user) throws NoSuchElementException {
+    User updateuser = user;
+    updateuser.update(requestDto);
+    return updateuser.getId();
+  }
+
+  @Transactional
+  public Long delete(User user) throws NoSuchElementException {
+    long id = user.getId();
+    try {
+      userRepository.delete(user);
+    }catch (Exception e){
+      throw new NoSuchElementException("해당 유저를 지우는데 실패");
+    }
+    return id;
   }
 }
