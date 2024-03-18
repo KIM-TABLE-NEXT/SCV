@@ -32,6 +32,9 @@ public class Board {
   @Column(nullable = false)
   private String color;
 
+  @Column(nullable = false)
+  private boolean state;
+
   @ManyToOne
   @JoinColumn(name="owner_id",nullable = false,foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
   private User owner;
