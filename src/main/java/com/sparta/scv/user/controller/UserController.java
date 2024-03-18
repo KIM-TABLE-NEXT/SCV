@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -47,6 +48,13 @@ public class UserController {
     return ResponseEntity
         .status(HttpStatus.CREATED)
         .body(userService.delete(impl.getUser()));
+  }
+  @GetMapping("/users/logout")
+  public ResponseEntity<?> logout(
+      HttpServletResponse servletResponse){
+    return ResponseEntity
+        .status(HttpStatus.CREATED)
+        .body(userService.userLogout(servletResponse));
   }
 
 }
