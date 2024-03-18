@@ -35,18 +35,20 @@ public class CardService {
         return new CardResponse(card.getId(), card.getTitle(), card.getDescription(), card.getColor());
     }
 
+    @Transactional
     public CardStatusResponse updateCard(Long cardId, CardRequest cardRequest, Long userId) {
         Card card = getCardById(cardId);
         User user = getUserById(userId);
         BoardColumn boardColumn = getColumnById(cardRequest.getColumnId());
 
-        if(!user.equals(card.getOwner()))
+        if(!user.getId().equals(card.getOwner().getId()))
             throw new IllegalArgumentException("해당 카드를 수정할 권한이 없습니다.");
 
         card.update(cardRequest, boardColumn);
         return new CardStatusResponse(201, "OK", card.getId());
     }
 
+    @Transactional
     public CardStatusResponse deleteCard(Long cardId, Long userId) {
         Card card = getCardById(cardId);
         User user = getUserById(userId);

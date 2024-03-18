@@ -6,8 +6,8 @@ import com.sparta.scv.card.dto.response.CardStatusResponse;
 import com.sparta.scv.card.service.CardService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,8 +27,8 @@ public class CardController {
 
     @PostMapping
     @Operation(summary = "카드 생성", description = "카드를 생성한다.")
-    public CardStatusResponse createCard(@RequestBody CardRequest cardRequest, Long userId){
-        return cardService.createCard(cardRequest, userId);
+    public ResponseEntity<CardStatusResponse> createCard(@RequestBody CardRequest cardRequest, Long userId){
+        return ResponseEntity.status(200).body(cardService.createCard(cardRequest, userId));
     }
 
     @GetMapping("/{cardId}")
@@ -39,13 +39,13 @@ public class CardController {
 
     @PutMapping("/{cardId}")
     @Operation(summary = "카드 수정", description = "카드 ID를 통해 카드를 수정한다.")
-    public CardStatusResponse updateCard(@PathVariable Long cardId,@RequestBody CardRequest cardRequest, Long userId){
-        return cardService.updateCard(cardId, cardRequest, userId);
+    public ResponseEntity<CardStatusResponse> updateCard(@PathVariable Long cardId,@RequestBody CardRequest cardRequest, Long userId){
+        return ResponseEntity.status(200).body(cardService.updateCard(cardId, cardRequest, userId));
     }
 
     @DeleteMapping("/{cardId}")
     @Operation(summary = "카드 삭제", description = "카드 ID를 통해 카드를 삭제한다.")
-    public CardStatusResponse deleteCard(@PathVariable Long cardId, Long userId){
-        return cardService.deleteCard(cardId, userId);
+    public ResponseEntity<CardStatusResponse> deleteCard(@PathVariable Long cardId, Long userId){
+        return ResponseEntity.status(200).body(cardService.deleteCard(cardId, userId));
     }
 }
