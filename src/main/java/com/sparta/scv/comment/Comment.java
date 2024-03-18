@@ -1,6 +1,6 @@
 package com.sparta.scv.comment;
 
-import com.sparta.scv.card.Card;
+import com.sparta.scv.card.entity.Card;
 import com.sparta.scv.user.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;

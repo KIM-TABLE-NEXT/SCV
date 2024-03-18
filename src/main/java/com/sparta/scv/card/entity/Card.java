@@ -1,6 +1,7 @@
-package com.sparta.scv.card;
+package com.sparta.scv.card.entity;
 
 import com.sparta.scv.boardcolumn.BoardColumn;
+import com.sparta.scv.card.dto.request.CardRequest;
 import com.sparta.scv.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -33,7 +34,18 @@ public class Card {
   @JoinColumn(name="owner_id",nullable = false,foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
   private User owner;
 
-  public void updateColumn(BoardColumn column){
-    this.column = column;
+  public Card(String title, String description, String color, BoardColumn boardColumn, User user){
+    this.title = title;
+    this.description = description;
+    this.color = color;
+    this.column = boardColumn;
+    this.owner = user;
+  }
+
+  public void update(CardRequest cardRequest, BoardColumn boardColumn) {
+    this.title = cardRequest.getTitle();
+    this.description = cardRequest.getDescription();
+    this.color = cardRequest.getColor();
+    this.column = boardColumn;
   }
 }
