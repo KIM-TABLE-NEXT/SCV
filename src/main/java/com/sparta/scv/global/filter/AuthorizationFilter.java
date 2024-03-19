@@ -43,7 +43,8 @@ public class AuthorizationFilter extends
         Claims info = jwtUtil.getUserInfoFromToken(t);
 
         // info 에서 아이디 을 뽑아와서 저장
-        String username = info.getSubject();
+        String username = (String) info.get("username");
+        //System.out.println(username);
 
         SecurityContext context = SecurityContextHolder.createEmptyContext();
         // Authentication (인증된 정보) 를 담고 있는 Holder

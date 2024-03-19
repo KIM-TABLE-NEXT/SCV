@@ -42,12 +42,13 @@ public class JwtUtil {
   }
 
   // 토큰 생성
-  public String createToken(Long id) {
+  public String createToken(Long id,String username) {
     Date date = new Date();
     // 토큰 만료시간
     // 2시간
     long TOKEN_TIME = 60 * 60 * 2000L;
-    Claims claims = Jwts.claims().setSubject("user");
+    Claims claims = Jwts.claims().setSubject("userObject");
+    claims.put("username",username);
     claims.put("userId",id);
 
     return BEARER_PREFIX +
@@ -73,8 +74,6 @@ public class JwtUtil {
     logger.error("Not Found Token");
     throw new NullPointerException("Not Found Token");
   }
-
-
 
   // 토큰 검증
   public boolean validateToken(String token) {

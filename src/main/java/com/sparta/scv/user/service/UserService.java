@@ -38,7 +38,7 @@ public class UserService {
     String token;
     try {
        user = userRepository.findByUsernameAndPassword(username,password);
-       token = jwtUtil.createToken(user.getId());
+       token = jwtUtil.createToken(user.getId(),username);
     }catch (Exception e){
       throw new NoSuchElementException("유저의 아이디 혹은 비밀 번호가 틀렸습니다.");
     }
@@ -48,9 +48,10 @@ public class UserService {
 
   //
   @Transactional
-  public Long update(UpdateRequestDto requestDto, User user) throws NoSuchElementException {
-    user.update(requestDto);
-    return user.getId();
+  public Long update(UpdateRequestDto requestDto, User user) {
+    User updateuser  =userRepository.findById(user.getId()).orElseThrow(NoSuchElementException::new);
+    updateuser.update(requestDto);
+    return updateuser.getId();
   }
 
   @Transactional
