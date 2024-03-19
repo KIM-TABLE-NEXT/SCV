@@ -1,9 +1,7 @@
 package com.sparta.scv.global.config;
 
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.scv.global.filter.AuthorizationFilter;
-import com.sparta.scv.global.impl.UserDetailsServiceImpl;
 import com.sparta.scv.global.jwt.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -21,13 +19,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class WebSecurityConfig {
 
   private final JwtUtil jwtUtil;
-  private final UserDetailsServiceImpl userDetailsServiceImpl;
 
 
   //  Filter 한바퀴 돌림
   @Bean
   public AuthorizationFilter authorizationFilter() {
-    return new AuthorizationFilter(jwtUtil, userDetailsServiceImpl);
+    return new AuthorizationFilter(jwtUtil);
   }
 
 

@@ -1,7 +1,5 @@
 package com.sparta.scv.global.filter;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.scv.global.impl.UserDetailsImpl;
-import com.sparta.scv.global.impl.UserDetailsServiceImpl;
 import com.sparta.scv.global.jwt.JwtUtil;
 import com.sparta.scv.user.entity.User;
 import io.jsonwebtoken.Claims;
@@ -25,7 +23,6 @@ public class AuthorizationFilter extends
     OncePerRequestFilter { // OncePerRequestFilter : 요청 한번마다 필터 돌리기
 
   private final JwtUtil jwtUtil;
-  private final UserDetailsServiceImpl userDetailsServiceImpl;
 
   @Override
   protected void doFilterInternal(
