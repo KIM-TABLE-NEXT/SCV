@@ -1,5 +1,6 @@
 ### 📄 개요
 **********************
+![image](https://github.com/KIM-TABLE-NEXT/SCV/assets/54929479/de912569-7bb3-48cf-9ccc-401321c7ef37)
 * **프로젝트 이름** : **SCV (Sparta Coding Virtual workspace)**
 * **프로젝트 제작기간** : 2024.03.18 ~ 2024.03.25
 * **프로젝트 설명** : 
