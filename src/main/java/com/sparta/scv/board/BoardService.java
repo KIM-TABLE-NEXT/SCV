@@ -32,17 +32,18 @@ public class BoardService {
 
     @Transactional(readOnly = true)
     public List<BoardDto> getBoards(User user) {
-        List<BoardMember> boardMembers = boardMemberRepository.findBoardsByUser(user);
-        List<BoardDto> boardDtos = new ArrayList<>();
-        // 성능 개선 필요
-        for (BoardMember boardMember : boardMembers) {
-            Board board = boardMember.getBoard();
-            if (board.isState()){
-                BoardDto boardDto = new BoardDto(board.getId(), board.getName());
-                boardDtos.add(boardDto);
-            }
-        }
-        return boardDtos;
+//        List<BoardMember> boardMembers = boardMemberRepository.findBoardsByUser(user);
+//        List<BoardDto> boardDtos = new ArrayList<>();
+//        // 성능 개선 필요
+//        for (BoardMember boardMember : boardMembers) {
+//            Board board = boardMember.getBoard();
+//            if (board.isState()){
+//                BoardDto boardDto = new BoardDto(board.getId(), board.getName());
+//                boardDtos.add(boardDto);
+//            }
+//        }
+//        return boardDtos;
+        return boardRepository.getBoards(user);
     }
 
 
