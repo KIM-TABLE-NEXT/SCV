@@ -18,15 +18,8 @@ public class BoardService {
     private final BoardMemberRepository boardMemberRepository;
 
     public Long createBoard(User user, BoardRequest boardRequest) {
-        Board board = Board.builder()
-            .name(boardRequest.getName())
-            .description(boardRequest.getDescription())
-            .color(boardRequest.getColor())
-            .owner(user)
-            .build();
-
-        boardRepository.save(board);
-        boardMemberRepository.save(new BoardMember(user, board));
+        Board board = createBoardEntity(user, boardRequest);
+        saveBoardAndMember(board);
         return board.getId();
     }
 
@@ -35,38 +28,48 @@ public class BoardService {
         return boardRepository.getBoards(user);
     }
 
-
     public Long updateBoard(Long boardId, BoardRequest boardRequest, User user) {
-        Board board = boardRepository.findById(boardId).orElseThrow(
-            IllegalArgumentException::new
-        );
-
-        if(Objects.equals(board.getOwner().getId(), user.getId())) {
-            board.updateBoard(
-                boardRequest.getName(),
-                boardRequest.getDescription(),
-                boardRequest.getColor()
-            );
-            boardRepository.save(board);
-            return board.getId();
-        }
-
-        throw new IllegalArgumentException();
+        Board board = getBoardById(boardId);
+        validateBoardOwner(user, board);
+        updateBoardAttributes(board, boardRequest);
+        return board.getId();
     }
-
 
     public Long deleteBoard(Long boardId, User user) {
-        Board board = boardRepository.findById(boardId).orElseThrow(
-            IllegalArgumentException::new
-        );
-
-        if(Objects.equals(board.getOwner().getId(), user.getId())) {
-            board.deleteBoard();
-            boardRepository.save(board);
-            return board.getId();
-        }
-
-        throw new IllegalArgumentException();
+        Board board = getBoardById(boardId);
+        validateBoardOwner(user, board);
+        board.deleteBoard();
+        return board.getId();
     }
 
+    private Board createBoardEntity(User user, BoardRequest boardRequest) {
+        return Board.builder()
+            .name(boardRequest.getName())
+            .description(boardRequest.getDescription())
+            .color(boardRequest.getColor())
+            .owner(user)
+            .build();
+    }
+
+    private void saveBoardAndMember(Board board) {
+        boardRepository.save(board);
+        boardMemberRepository.save(new BoardMember(board.getOwner(), board));
+    }
+
+    private Board getBoardById(Long boardId) {
+        return boardRepository.findById(boardId)
+            .orElseThrow(() -> new IllegalArgumentException("Board not found"));
+    }
+
+    private void validateBoardOwner(User user, Board board) {
+        if (!Objects.equals(board.getOwner().getId(), user.getId())) {
+            throw new IllegalArgumentException("Unauthorized to perform action");
+        }
+    }
+
+    private void updateBoardAttributes(Board board, BoardRequest boardRequest) {
+        board.updateBoard(boardRequest.getName(), boardRequest.getDescription(), boardRequest.getColor());
+        boardRepository.save(board);
+    }
 }
+

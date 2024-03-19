@@ -18,32 +18,53 @@ public class BoardMemberService {
     private final BoardMemberRepository boardMemberRepository;
 
     public Long addBoardMember(BoardMemberRequest boardMemberRequest, User user) {
-        Board board = boardRepository.findById(boardMemberRequest.getBoardId()).orElse(null);
-
-        if (!boardMemberRepository.existsByUserAndBoard(user, board)){
-            throw new IllegalArgumentException();
-        }
-
+        Board board = getBoard(boardMemberRequest);
         User invitedUser = new User(boardMemberRequest.getUserId());
-        if(userRepository.existsById(invitedUser.getId())){
-            boardMemberRepository.save(new BoardMember(invitedUser, board));
+
+        checkBoardMemberExists(user, board);
+
+        if (userRepository.existsById(invitedUser.getId())) {
+            saveBoardMember(invitedUser, board);
             return invitedUser.getId();
         }
 
-        throw new IllegalArgumentException();
+        throw new IllegalArgumentException("Invited user not found");
     }
+
 
     @Transactional
     public Long deleteBoardMember(BoardMemberRequest boardMemberRequest, User user) {
-        Board board = boardRepository.findById(boardMemberRequest.getBoardId()).orElseThrow(
-            () -> new IllegalArgumentException("Board not found")
-        );
-        if (Objects.equals(board.getOwner().getId(), user.getId())) {
-            User deletedUser = new User(boardMemberRequest.getUserId());
-            boardMemberRepository.deleteByUserAndBoard(deletedUser, board);
-            return deletedUser.getId();
-        }
+        Board board = getBoard(boardMemberRequest);
 
-        throw new IllegalArgumentException("보드 회원 제거 권한이 없습니다.");
+        validateDeletePermission(board, boardMemberRequest.getUserId(), user);
+
+        User deletedUser = new User(boardMemberRequest.getUserId());
+        boardMemberRepository.deleteByUserAndBoard(deletedUser, board);
+        return deletedUser.getId();
+    }
+
+    private Board getBoard(BoardMemberRequest boardMemberRequest) {
+        return boardRepository.findById(boardMemberRequest.getBoardId())
+            .orElseThrow(() -> new IllegalArgumentException("Board not found"));
+    }
+
+    private void checkBoardMemberExists(User user, Board board) {
+        if (!boardMemberRepository.existsByUserAndBoard(user, board)) {
+            throw new IllegalArgumentException("User is not a member of this board");
+        }
+    }
+
+    private void saveBoardMember(User invitedUser, Board board) {
+        boardMemberRepository.save(new BoardMember(invitedUser, board));
+    }
+
+    private void validateDeletePermission(Board board, Long memberId, User user) {
+        if (board.getOwner().getId().equals(memberId)) {
+            throw new IllegalArgumentException("Cannot remove board owner");
+        }
+        if (!board.getOwner().getId().equals(user.getId())) {
+            throw new IllegalArgumentException("Unauthorized to remove board member");
+        }
     }
 }
+
