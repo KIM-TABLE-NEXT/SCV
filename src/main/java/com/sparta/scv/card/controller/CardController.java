@@ -8,6 +8,7 @@ import com.sparta.scv.global.impl.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -31,7 +32,7 @@ public class CardController {
     @Operation(summary = "카드 생성", description = "카드를 생성한다.")
     public ResponseEntity<CardStatusResponse> createCard(@RequestBody CardRequest cardRequest, @AuthenticationPrincipal
         UserDetailsImpl userDetails){
-        return ResponseEntity.status(200).body(cardService.createCard(cardRequest, userDetails.getUser()));
+        return ResponseEntity.status(HttpStatus.CREATED).body(cardService.createCard(cardRequest, userDetails.getUser()));
     }
 
     @GetMapping("/{cardId}")
@@ -44,13 +45,13 @@ public class CardController {
     @Operation(summary = "카드 수정", description = "카드 ID를 통해 카드를 수정한다.")
     public ResponseEntity<CardStatusResponse> updateCard(@PathVariable Long cardId,@RequestBody CardRequest cardRequest, @AuthenticationPrincipal
     UserDetailsImpl userDetails){
-        return ResponseEntity.status(200).body(cardService.updateCard(cardId, cardRequest, userDetails.getUser()));
+        return ResponseEntity.status(HttpStatus.CREATED).body(cardService.updateCard(cardId, cardRequest, userDetails.getUser()));
     }
 
     @DeleteMapping("/{cardId}")
     @Operation(summary = "카드 삭제", description = "카드 ID를 통해 카드를 삭제한다.")
     public ResponseEntity<CardStatusResponse> deleteCard(@PathVariable Long cardId, @AuthenticationPrincipal
     UserDetailsImpl userDetails){
-        return ResponseEntity.status(200).body(cardService.deleteCard(cardId, userDetails.getUser()));
+        return ResponseEntity.status(HttpStatus.OK).body(cardService.deleteCard(cardId, userDetails.getUser()));
     }
 }
