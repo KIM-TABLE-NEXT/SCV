@@ -21,30 +21,14 @@ public class BoardColumnService {
 
     @Transactional
     public Long createColumn(BoardColumnRequestDto requestDto) {
-        Long originPosition = requestDto.getPosition();
-        if (originPosition < 1) {
-            throw new IllegalArgumentException("순서 값은 1 이상의 값이여야 합니다.");
-        }
-        Long maxPosition = boardColumnRepository.findMaxPosition(requestDto.getBoardId()).orElse(0L) / 1024;
-        if (originPosition > maxPosition + 1) {
-            originPosition = maxPosition + 2;
-        }
+        validatePosition(requestDto.getPosition());
+
         Board board = new Board();
         board.setId(requestDto.getBoardId());
-        Long gapPosition = originPosition * 1024L - 1024L;
-        Long nextPosition = boardColumnRepositoryQuery.findColumnByPosition(requestDto.getBoardId(), requestDto.getPosition()); // n번쨰 인덱스 반환 첫 생성시엔 없을거임.
-        if(nextPosition != 0){
-            if (requestDto.getPosition() != 1){
-                Long previousPosition = boardColumnRepositoryQuery.findColumnByPosition(requestDto.getBoardId(), requestDto.getPosition() - 1); // n-1번쨰 인덱스 반환 n이 1이 아닌경우
-                gapPosition = (nextPosition + previousPosition) / 2;
-            } else {
-                gapPosition = nextPosition / 2;
-            }
-        }
-        if(gapPosition == 0){
-            gapPosition = 1024L / 2L;
-        }
-        BoardColumn savedBoardColumn = boardColumnRepository.save(new BoardColumn(requestDto.getColumnName(), gapPosition, board));
+
+        Long position = calculatePosition(requestDto.getBoardId(), requestDto.getPosition());
+        BoardColumn savedBoardColumn = boardColumnRepository.save(new BoardColumn(requestDto.getColumnName(), position, board));
+
         return savedBoardColumn.getId();
     }
 
@@ -58,28 +42,13 @@ public class BoardColumnService {
 
     @Transactional
     public void updateColumnPosition(Long boardColumnId, PositionUpdateDto requestDto) {
-        BoardColumn boardColumn = boardColumnRepository.findById(boardColumnId).orElseThrow(
-            () -> new IllegalArgumentException("해당 ID를 가진 컬럼은 존재하지 않습니다.")
-        );
-        Long originPosition = requestDto.getPosition();
-        if (originPosition < 1) {
-            throw new IllegalArgumentException("순서 값은 1 이상의 값이여야 합니다.");
-        }
-        Long maxPosition = boardColumnRepository.findMaxPosition(boardColumn.getBoard().getId()).orElse(0L) / 1024;
-        if (originPosition > maxPosition + 1) {
-            originPosition = maxPosition + 2;
-        }
-        Long gapPosition = originPosition * 1024L - 1024L;
-        Long nextPosition = boardColumnRepositoryQuery.findColumnByPosition(boardColumn.getBoard().getId(), requestDto.getPosition());
-        if (nextPosition != 0) {
-            if (requestDto.getPosition() != 1){
-                Long previousPosition = boardColumnRepositoryQuery.findColumnByPosition(boardColumn.getBoard().getId(), requestDto.getPosition() - 1);
-                gapPosition = (nextPosition + previousPosition) / 2;
-            } else {
-                gapPosition = nextPosition / 2;
-            }
-        }
-        boardColumn.updatePosition(gapPosition);
+        validatePosition(requestDto.getPosition());
+
+        BoardColumn boardColumn = boardColumnRepository.findById(boardColumnId)
+            .orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 컬럼은 존재하지 않습니다."));
+
+        Long position = calculatePosition(boardColumn.getBoard().getId(), requestDto.getPosition());
+        boardColumn.updatePosition(position);
     }
 
     @Transactional
@@ -88,5 +57,30 @@ public class BoardColumnService {
             () -> new IllegalArgumentException("해당 ID를 가진 컬럼은 존재하지 않습니다.")
         );
         boardColumnRepository.delete(boardColumn);
+    }
+
+    private void validatePosition(Long position) {
+        if (position < 1) {
+            throw new IllegalArgumentException("순서 값은 1 이상의 값이여야 합니다.");
+        }
+    }
+
+    private Long calculatePosition(Long boardId, Long requestedPosition) {
+        Long maxPosition = boardColumnRepository.findMaxPosition(boardId).orElse(0L) / 1024;
+        if (requestedPosition > maxPosition + 1) {
+            requestedPosition = maxPosition + 2;
+        }
+
+        Long nextPosition = boardColumnRepositoryQuery.findColumnByPosition(boardId, requestedPosition);
+        Long previousPosition = (requestedPosition == 1) ? 0 :
+            boardColumnRepositoryQuery.findColumnByPosition(boardId, requestedPosition - 1);
+
+        if (nextPosition == 0) {
+            return (maxPosition + 1) * 1024;
+        } else if (previousPosition == 0) {
+            return nextPosition / 2;
+        } else {
+            return (nextPosition + previousPosition) / 2;
+        }
     }
 }

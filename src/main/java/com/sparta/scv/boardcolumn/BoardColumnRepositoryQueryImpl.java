@@ -20,18 +20,6 @@ public class BoardColumnRepositoryQueryImpl {
         this.qf = new JPAQueryFactory(em);
     }
 
-//    public Long findNextColumnByPosition(Long boardId, Long index) {
-//        var query = qf
-//            .select(boardColumn.position)
-//            .from(boardColumn)
-//            .where(boardColumn.board.id.eq(boardId)
-//                .and(boardColumn.position.gt(position)))
-//            .orderBy(boardColumn.position.asc())
-//            .limit(1);
-//
-//        return query.fetchFirst();
-//    }
-
     public Long findColumnByPosition(Long boardId, Long index) {
         Long result = qf
             .select(boardColumn.position)
