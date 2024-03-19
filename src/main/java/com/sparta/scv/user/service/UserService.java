@@ -21,6 +21,7 @@ public class UserService {
   private final UserRepository userRepository;
   private final JwtUtil jwtUtil;
 
+  @Transactional
   public SignupDto signup(SignupDto requestDto) {
     User user = new User(requestDto);
     try {
@@ -38,22 +39,20 @@ public class UserService {
     String token;
     try {
        user = userRepository.findByUsernameAndPassword(username,password);
-       token = jwtUtil.createToken(user.getId(),username);
+       token = jwtUtil.createToken(user.getId());
     }catch (Exception e){
       throw new NoSuchElementException("유저의 아이디 혹은 비밀 번호가 틀렸습니다.");
     }
     jwtUtil.addJwtToHeader(token,httpServletResponse);
     return jwtUtil.giveUserId(token);
   }
-
   //
   @Transactional
   public Long update(UpdateRequestDto requestDto, User user) {
-    User updateuser  =userRepository.findById(user.getId()).orElseThrow(NoSuchElementException::new);
+    User updateuser=userRepository.findById(user.getId()).orElseThrow(NoSuchElementException::new);
     updateuser.update(requestDto);
     return updateuser.getId();
   }
-
   @Transactional
   public Long delete(User user) throws NoSuchElementException {
     try {
@@ -63,7 +62,6 @@ public class UserService {
     }
     return 200L;
   }
-
   public Long userLogout(HttpServletResponse servletResponse) {
     servletResponse.setHeader(Auth,null);
     return 200L;

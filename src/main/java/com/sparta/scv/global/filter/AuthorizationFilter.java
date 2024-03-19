@@ -1,7 +1,9 @@
 package com.sparta.scv.global.filter;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sparta.scv.global.impl.UserDetailsImpl;
 import com.sparta.scv.global.impl.UserDetailsServiceImpl;
 import com.sparta.scv.global.jwt.JwtUtil;
+import com.sparta.scv.user.entity.User;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -43,16 +45,17 @@ public class AuthorizationFilter extends
         Claims info = jwtUtil.getUserInfoFromToken(t);
 
         // info 에서 아이디 을 뽑아와서 저장
-        String username = (String) info.get("username");
-        //System.out.println(username);
+        long id = (long)(int) info.get("userId");
+
 
         SecurityContext context = SecurityContextHolder.createEmptyContext();
         // Authentication (인증된 정보) 를 담고 있는 Holder
         // SecurityContextHolder 가 가진 값을 통해 인증이 되었나 확인할 수있음.
 
-        UserDetails userDetails = userDetailsServiceImpl.loadUserByUsername(username);
+        UserDetails userDetails; // = userDetailsServiceImpl.loadUserByUsername(username);
+        User user = new User(id);
+        userDetails = new UserDetailsImpl(user);
         //userDetails 에 유저의 상세 정보를 넣음
-
         Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails,
             null, userDetails.getAuthorities());
         //인증 확인을 하여 아직 인증이 완료되었다는 정보를 보냄

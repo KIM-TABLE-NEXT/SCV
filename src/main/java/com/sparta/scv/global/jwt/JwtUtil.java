@@ -42,13 +42,12 @@ public class JwtUtil {
   }
 
   // 토큰 생성
-  public String createToken(Long id,String username) {
+  public String createToken(Long id) {
     Date date = new Date();
     // 토큰 만료시간
     // 2시간
     long TOKEN_TIME = 60 * 60 * 2000L;
     Claims claims = Jwts.claims().setSubject("userObject");
-    claims.put("username",username);
     claims.put("userId",id);
 
     return BEARER_PREFIX +
