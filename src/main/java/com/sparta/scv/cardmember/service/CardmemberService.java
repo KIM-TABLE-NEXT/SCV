@@ -33,7 +33,7 @@ public class CardmemberService {
         if(!user.getId().equals(card.getOwner().getId()))
             throw new IllegalArgumentException("해당 카드에 작업자를 추가할 권한이 없습니다.");
 
-        Optional<CardMember> verify = cardMemberRepository.findByCardIdAndMemberId(card.getId(),member.getId());
+        Optional<CardMember> verify = cardMemberRepository.findByCardIdAndUserId(card.getId(),member.getId());
         if(verify.isPresent())
             throw new IllegalArgumentException("해당 카드에 해당 작업자가 이미 존재합니다.");
 

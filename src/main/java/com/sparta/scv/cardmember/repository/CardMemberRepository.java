@@ -11,7 +11,7 @@ public interface CardMemberRepository extends JpaRepository<CardMember, Long> {
 
     List<CardMember> findAllByCardId(Long cardId);
 
-    void deleteByCardIdAndUserId(Long cardId, Long memberId);
+    void deleteByCardIdAndUserId(Long cardId, Long userId);
 
-    Optional<CardMember> findByCardIdAndMemberId(Long id, Long id1);
+    Optional<CardMember> findByCardIdAndUserId(Long cardId, Long userId);
 }
