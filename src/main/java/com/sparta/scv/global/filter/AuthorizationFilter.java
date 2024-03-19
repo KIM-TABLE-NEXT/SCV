@@ -48,7 +48,7 @@ public class AuthorizationFilter extends
         // Authentication (인증된 정보) 를 담고 있는 Holder
         // SecurityContextHolder 가 가진 값을 통해 인증이 되었나 확인할 수있음.
 
-        UserDetails userDetails; // = userDetailsServiceImpl.loadUserByUsername(username);
+        UserDetails userDetails;
         User user = new User(id);
         userDetails = new UserDetailsImpl(user);
         //userDetails 에 유저의 상세 정보를 넣음
