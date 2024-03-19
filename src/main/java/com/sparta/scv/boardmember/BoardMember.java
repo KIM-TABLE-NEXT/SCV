@@ -1,7 +1,7 @@
 package com.sparta.scv.boardmember;
 
 import com.sparta.scv.board.Board;
-import com.sparta.scv.user.User;
+import com.sparta.scv.user.entity.User;
 import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
