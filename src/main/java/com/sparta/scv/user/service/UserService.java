@@ -10,7 +10,6 @@ import com.sparta.scv.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,16 +22,15 @@ public class UserService {
   private final PasswordEncoder passwordEncoder;
   private final JwtUtil jwtUtil;
 
-  @Transactional
-  public SignupDto signup(SignupDto requestDto) {
+  public String signup(SignupDto requestDto) {
     requestDto.setPassword(passwordEncoder.encode(requestDto.getPassword()));
     User user = new User(requestDto);
     try {
       userRepository.save(user);
-    }catch (DuplicateKeyException e){
+      return requestDto.getUsername();
+    }catch (IllegalArgumentException e){
       throw new IllegalArgumentException("해당 유저는 이미 존재 합니다");
     }
-    return requestDto;
   }
 
   public Long login(LoginRequestDto requestDto, HttpServletResponse httpServletResponse) {
@@ -66,7 +64,7 @@ public class UserService {
     }catch (Exception e){
       throw new NoSuchElementException("해당 유저를 지우는데 실패");
     }
-    return 200L;
+    return user.getId();
   }
   public Long userLogout(HttpServletResponse servletResponse) {
     servletResponse.setHeader(Auth,null);
