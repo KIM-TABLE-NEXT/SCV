@@ -30,7 +30,7 @@ public class CardmemberService {
         Card card = getCardById(cardMemberRequest.getCardId());
         User member = getUserById(cardMemberRequest.getMemberId());
 
-        if(!user.equals(card.getOwner()))
+        if(!user.getId().equals(card.getOwner().getId()))
             throw new IllegalArgumentException("해당 카드에 작업자를 추가할 권한이 없습니다.");
 
         Optional<CardMember> verify = cardMemberRepository.findByCardIdAndMemberId(card.getId(),member.getId());
@@ -55,7 +55,7 @@ public class CardmemberService {
     public CardMemberStatusResponse deleteCardMember(CardMemberRequest cardMemberRequest, User user) {
         Card card = getCardById(cardMemberRequest.getCardId());
 
-        if(!user.equals(card.getOwner()))
+        if(!user.getId().equals(card.getOwner().getId()))
             throw new IllegalArgumentException("해당 카드에 작업자를 삭제할 권한이 없습니다.");
 
         cardMemberRepository.deleteByCardIdAndUserId(cardMemberRequest.getCardId(), cardMemberRequest.getMemberId());

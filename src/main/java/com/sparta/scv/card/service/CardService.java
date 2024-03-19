@@ -24,6 +24,7 @@ public class CardService {
     @Transactional
     public CardStatusResponse createCard(CardRequest cardRequest, User user) {
         BoardColumn boardColumn = getColumnById(cardRequest.getColumnId());
+        user = getUserById(user.getId());
 
         Card card = cardRepository.save(new Card(cardRequest.getTitle(), cardRequest.getDescription(), cardRequest.getColor(), boardColumn, user));
         return new CardStatusResponse(201, "CREATED", card.getId());
@@ -39,7 +40,7 @@ public class CardService {
         Card card = getCardById(cardId);
         BoardColumn boardColumn = getColumnById(cardRequest.getColumnId());
 
-        if(!user.equals(card.getOwner()))
+        if(!user.getId().equals(card.getOwner().getId()))
             throw new IllegalArgumentException("해당 카드를 수정할 권한이 없습니다.");
 
         card.update(cardRequest, boardColumn);
@@ -49,7 +50,7 @@ public class CardService {
     @Transactional
     public CardStatusResponse deleteCard(Long cardId, User user) {
         Card card = getCardById(cardId);
-        if(!user.equals(card.getOwner()))
+        if(!user.getId().equals(card.getOwner().getId()))
             throw new IllegalArgumentException("해당 카드를 삭제할 권한이 없습니다.");
         cardRepository.deleteById(cardId);
         return new CardStatusResponse(200, "OK", card.getId());
@@ -64,6 +65,12 @@ public class CardService {
     public Card getCardById(Long cardId){
         return cardRepository.findById(cardId).orElseThrow(
             ()-> new NullPointerException("해당 카드가 존재하지 않습니다.")
+        );
+    }
+
+    public User getUserById(Long userId){
+        return userRepository.findById(userId).orElseThrow(
+            ()-> new NullPointerException("해당 유저가 존재하지 않습니다.")
         );
     }
 }
