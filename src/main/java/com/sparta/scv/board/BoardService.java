@@ -2,10 +2,13 @@ package com.sparta.scv.board;
 
 import com.sparta.scv.boardmember.BoardMember;
 import com.sparta.scv.boardmember.BoardMemberRepository;
-import com.sparta.scv.user.User;
+import com.sparta.scv.user.entity.User;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -27,9 +30,53 @@ public class BoardService {
         return board.getId();
     }
 
-    public List<Board> getBoards(User user) {
-
-        return boardRepository.findByUser_id(user.getId());
-
+    @Transactional(readOnly = true)
+    public List<BoardDto> getBoards(User user) {
+        List<BoardMember> boardMembers = boardMemberRepository.findBoardsByUser(user);
+        List<BoardDto> boardDtos = new ArrayList<>();
+        // 성능 개선 필요
+        for (BoardMember boardMember : boardMembers) {
+            Board board = boardMember.getBoard();
+            if (board.isState()){
+                BoardDto boardDto = new BoardDto(board.getId(), board.getName());
+                boardDtos.add(boardDto);
+            }
+        }
+        return boardDtos;
     }
+
+
+    public Long updateBoard(Long boardId, BoardRequest boardRequest, User user) {
+        Board board = boardRepository.findById(boardId).orElseThrow(
+            IllegalArgumentException::new
+        );
+
+        if(Objects.equals(board.getOwner().getId(), user.getId())) {
+            board.updateBoard(
+                boardRequest.getName(),
+                boardRequest.getDescription(),
+                boardRequest.getColor()
+            );
+            boardRepository.save(board);
+            return board.getId();
+        }
+
+        throw new IllegalArgumentException();
+    }
+
+
+    public Long deleteBoard(Long boardId, User user) {
+        Board board = boardRepository.findById(boardId).orElseThrow(
+            IllegalArgumentException::new
+        );
+
+        if(Objects.equals(board.getOwner().getId(), user.getId())) {
+            board.deleteBoard();
+            boardRepository.save(board);
+            return board.getId();
+        }
+
+        throw new IllegalArgumentException();
+    }
+
 }

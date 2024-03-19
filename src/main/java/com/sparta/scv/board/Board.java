@@ -1,6 +1,6 @@
 package com.sparta.scv.board;
 
-import com.sparta.scv.user.User;
+import com.sparta.scv.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
@@ -47,5 +47,15 @@ public class Board {
     this.color = color;
     this.state = true;
     this.owner = owner;
+  }
+
+  public void updateBoard(String name, String description, String color) {
+    this.name = name;
+    this.description = description;
+    this.color = color;
+  }
+
+  public void deleteBoard() {
+    this.state = false;
   }
 }
