@@ -2,7 +2,7 @@ package com.sparta.scv.card.entity;
 
 import com.sparta.scv.boardcolumn.BoardColumn;
 import com.sparta.scv.card.dto.request.CardRequest;
-import com.sparta.scv.user.User;
+import com.sparta.scv.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

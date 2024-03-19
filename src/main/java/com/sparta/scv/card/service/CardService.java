@@ -7,8 +7,8 @@ import com.sparta.scv.card.dto.response.CardResponse;
 import com.sparta.scv.card.dto.response.CardStatusResponse;
 import com.sparta.scv.card.entity.Card;
 import com.sparta.scv.card.repository.CardRepository;
-import com.sparta.scv.user.User;
-import com.sparta.scv.user.UserRepository;
+import com.sparta.scv.user.entity.User;
+import com.sparta.scv.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,9 +22,8 @@ public class CardService {
     private final UserRepository userRepository;
 
     @Transactional
-    public CardStatusResponse createCard(CardRequest cardRequest, Long userId) {
+    public CardStatusResponse createCard(CardRequest cardRequest, User user) {
         BoardColumn boardColumn = getColumnById(cardRequest.getColumnId());
-        User user = getUserById(userId);
 
         Card card = cardRepository.save(new Card(cardRequest.getTitle(), cardRequest.getDescription(), cardRequest.getColor(), boardColumn, user));
         return new CardStatusResponse(201, "CREATED", card.getId());
@@ -36,12 +35,11 @@ public class CardService {
     }
 
     @Transactional
-    public CardStatusResponse updateCard(Long cardId, CardRequest cardRequest, Long userId) {
+    public CardStatusResponse updateCard(Long cardId, CardRequest cardRequest, User user) {
         Card card = getCardById(cardId);
-        User user = getUserById(userId);
         BoardColumn boardColumn = getColumnById(cardRequest.getColumnId());
 
-        if(!user.getId().equals(card.getOwner().getId()))
+        if(!user.equals(card.getOwner()))
             throw new IllegalArgumentException("해당 카드를 수정할 권한이 없습니다.");
 
         card.update(cardRequest, boardColumn);
@@ -49,9 +47,8 @@ public class CardService {
     }
 
     @Transactional
-    public CardStatusResponse deleteCard(Long cardId, Long userId) {
+    public CardStatusResponse deleteCard(Long cardId, User user) {
         Card card = getCardById(cardId);
-        User user = getUserById(userId);
         if(!user.equals(card.getOwner()))
             throw new IllegalArgumentException("해당 카드를 삭제할 권한이 없습니다.");
         cardRepository.deleteById(cardId);
@@ -61,12 +58,6 @@ public class CardService {
     public BoardColumn getColumnById(Long columnId){
         return boardColumnRepository.findById(columnId).orElseThrow(
             ()-> new NullPointerException("해당 Column이 존재하지 않습니다.")
-        );
-    }
-
-    public User getUserById(Long userId){
-        return userRepository.findById(userId).orElseThrow(
-            ()-> new NullPointerException("해당 유저가 존재하지 않습니다.")
         );
     }
 
