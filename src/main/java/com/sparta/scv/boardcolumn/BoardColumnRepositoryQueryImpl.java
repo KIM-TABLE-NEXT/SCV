@@ -20,26 +20,27 @@ public class BoardColumnRepositoryQueryImpl {
         this.qf = new JPAQueryFactory(em);
     }
 
-    public Long findColumnByPosition(Long boardId, Long position) {
-        var query = qf
-            .select(boardColumn.position)
-            .from(boardColumn)
-            .where(boardColumn.board.id.eq(boardId)
-                .and(boardColumn.position.gt(position)))
-            .orderBy(boardColumn.position.asc())
-            .limit(1);
+//    public Long findNextColumnByPosition(Long boardId, Long index) {
+//        var query = qf
+//            .select(boardColumn.position)
+//            .from(boardColumn)
+//            .where(boardColumn.board.id.eq(boardId)
+//                .and(boardColumn.position.gt(position)))
+//            .orderBy(boardColumn.position.asc())
+//            .limit(1);
+//
+//        return query.fetchFirst();
+//    }
 
-        return query.fetchFirst();
-    }
-
-    public Long findPreviousColumnByPosition(Long boardId, Long position) {
+    public Long findColumnByPosition(Long boardId, Long index) {
         Long result = qf
             .select(boardColumn.position)
             .from(boardColumn)
-            .where(boardColumn.board.id.eq(boardId)
-                .and(boardColumn.position.eq(position)))
+            .where(boardColumn.board.id.eq(boardId))
+            .orderBy(boardColumn.position.asc())
+            .offset(index - 1)
+            .limit(1)
             .fetchOne();
-
         return result != null ? result : 0L;
     }
 }

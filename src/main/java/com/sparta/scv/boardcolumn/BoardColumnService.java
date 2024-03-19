@@ -32,12 +32,14 @@ public class BoardColumnService {
         Board board = new Board();
         board.setId(requestDto.getBoardId());
         Long gapPosition = originPosition * 1024L - 1024L;
-        Long foundPosition = boardColumnRepositoryQuery.findColumnByPosition(requestDto.getBoardId(), gapPosition);
-        if(foundPosition != null){
-            Long previousPosition = boardColumnRepositoryQuery.findPreviousColumnByPosition(requestDto.getBoardId(), gapPosition);
-            Long setPosition = (foundPosition - previousPosition) / 2;
-            BoardColumn savedBoardColumn = boardColumnRepository.save(new BoardColumn(requestDto.getColumnName(), setPosition, board));
-            return savedBoardColumn.getId();
+        Long nextPosition = boardColumnRepositoryQuery.findColumnByPosition(requestDto.getBoardId(), requestDto.getPosition()); // n번쨰 인덱스 반환 첫 생성시엔 없을거임.
+        if(nextPosition != 0){
+            if (requestDto.getPosition() != 1){
+                Long previousPosition = boardColumnRepositoryQuery.findColumnByPosition(requestDto.getBoardId(), requestDto.getPosition() - 1); // n-1번쨰 인덱스 반환 n이 1이 아닌경우
+                gapPosition = (nextPosition + previousPosition) / 2;
+            } else {
+                gapPosition = nextPosition / 2;
+            }
         }
         if(gapPosition == 0){
             gapPosition = 1024L / 2L;
@@ -68,13 +70,14 @@ public class BoardColumnService {
             originPosition = maxPosition + 2;
         }
         Long gapPosition = originPosition * 1024L - 1024L;
-        Long foundPosition = boardColumnRepositoryQuery.findColumnByPosition(boardColumn.getBoard().getId(), gapPosition);
-
-        if(foundPosition != null){
-            Long previousPosition = boardColumnRepositoryQuery.findPreviousColumnByPosition(boardColumn.getBoard().getId(), gapPosition);
-            Long setPosition = (foundPosition - previousPosition) / 2;
-            boardColumn.updatePosition(setPosition);
-            return;
+        Long nextPosition = boardColumnRepositoryQuery.findColumnByPosition(boardColumn.getBoard().getId(), requestDto.getPosition());
+        if (nextPosition != 0) {
+            if (requestDto.getPosition() != 1){
+                Long previousPosition = boardColumnRepositoryQuery.findColumnByPosition(boardColumn.getBoard().getId(), requestDto.getPosition() - 1);
+                gapPosition = (nextPosition + previousPosition) / 2;
+            } else {
+                gapPosition = nextPosition / 2;
+            }
         }
         boardColumn.updatePosition(gapPosition);
     }
