@@ -34,7 +34,6 @@ public class JwtUtil {
 
   // 로그 설정
   public static final Logger logger = LoggerFactory.getLogger("JWT 관련 로그");
-
   @PostConstruct
   public void init() {
     byte[] bytes = Base64.getDecoder().decode(secretKey);
