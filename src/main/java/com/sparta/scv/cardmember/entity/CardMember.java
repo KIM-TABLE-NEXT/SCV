@@ -1,7 +1,7 @@
 package com.sparta.scv.cardmember.entity;
 
 import com.sparta.scv.card.entity.Card;
-import com.sparta.scv.user.User;
+import com.sparta.scv.user.entity.User;
 import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

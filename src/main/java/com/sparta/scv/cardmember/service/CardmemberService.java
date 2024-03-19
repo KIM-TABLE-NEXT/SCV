@@ -8,13 +8,13 @@ import com.sparta.scv.cardmember.dto.response.CardMemberResponse;
 import com.sparta.scv.cardmember.dto.response.CardMemberStatusResponse;
 import com.sparta.scv.cardmember.entity.CardMember;
 import com.sparta.scv.cardmember.repository.CardMemberRepository;
-import com.sparta.scv.user.User;
-import com.sparta.scv.user.UserRepository;
+import com.sparta.scv.user.entity.User;
+import com.sparta.scv.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -26,13 +26,16 @@ public class CardmemberService {
     private final CardRepository cardRepository;
 
     @Transactional
-    public CardMemberStatusResponse createCardMember(CardMemberRequest cardMemberRequest, Long userId) {
+    public CardMemberStatusResponse createCardMember(CardMemberRequest cardMemberRequest, User user) {
         Card card = getCardById(cardMemberRequest.getCardId());
         User member = getUserById(cardMemberRequest.getMemberId());
-        User user = getUserById(userId);
 
         if(!user.equals(card.getOwner()))
             throw new IllegalArgumentException("해당 카드에 작업자를 추가할 권한이 없습니다.");
+
+        Optional<CardMember> verify = cardMemberRepository.findByCardIdAndMemberId(card.getId(),member.getId());
+        if(verify.isPresent())
+            throw new IllegalArgumentException("해당 카드에 해당 작업자가 이미 존재합니다.");
 
         CardMember cardMember = cardMemberRepository.save(new CardMember(card, member));
 
@@ -49,9 +52,8 @@ public class CardmemberService {
     }
 
     @Transactional
-    public CardMemberStatusResponse deleteCardMember(CardMemberRequest cardMemberRequest, Long userId) {
+    public CardMemberStatusResponse deleteCardMember(CardMemberRequest cardMemberRequest, User user) {
         Card card = getCardById(cardMemberRequest.getCardId());
-        User user = getUserById(userId);
 
         if(!user.equals(card.getOwner()))
             throw new IllegalArgumentException("해당 카드에 작업자를 삭제할 권한이 없습니다.");
