@@ -13,11 +13,13 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "boards")
 @NoArgsConstructor
 @Getter
+@Setter
 public class Board {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,7 +37,5 @@ public class Board {
   @ManyToOne
   @JoinColumn(name="owner_id",nullable = false,foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
   private User owner;
-
-
 
 }
