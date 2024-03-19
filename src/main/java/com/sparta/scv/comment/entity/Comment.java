@@ -1,7 +1,9 @@
-package com.sparta.scv.cardmember;
+package com.sparta.scv.comment.entity;
 
-import com.sparta.scv.card.Card;
-import com.sparta.scv.user.User;
+import com.sparta.scv.card.entity.Card;
+import com.sparta.scv.comment.dto.request.CommentRequest;
+import com.sparta.scv.user.entity.User;
+import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -16,20 +18,32 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "cardmembers")
+@Table(name = "comments")
 @NoArgsConstructor
 @Getter
-public class CardMember {
-
+public class Comment {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
+
+  @Column(name = "comment")
+  private String content;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "card_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+  private Card card;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
   private User user;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "card_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-  private Card card;
+  public Comment(CommentRequest commentRequest, User user, Card card){
+    this.content = commentRequest.getContent();
+    this.user = user;
+    this.card = card;
+  }
+
+  public void update(String content) {
+    this.content = content;
+  }
 }
