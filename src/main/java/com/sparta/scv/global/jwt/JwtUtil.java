@@ -34,7 +34,6 @@ public class JwtUtil {
 
   // 로그 설정
   public static final Logger logger = LoggerFactory.getLogger("JWT 관련 로그");
-
   @PostConstruct
   public void init() {
     byte[] bytes = Base64.getDecoder().decode(secretKey);
@@ -47,7 +46,7 @@ public class JwtUtil {
     // 토큰 만료시간
     // 2시간
     long TOKEN_TIME = 60 * 60 * 2000L;
-    Claims claims = Jwts.claims().setSubject("user");
+    Claims claims = Jwts.claims().setSubject("userObject");
     claims.put("userId",id);
 
     return BEARER_PREFIX +
@@ -73,8 +72,6 @@ public class JwtUtil {
     logger.error("Not Found Token");
     throw new NullPointerException("Not Found Token");
   }
-
-
 
   // 토큰 검증
   public boolean validateToken(String token) {
