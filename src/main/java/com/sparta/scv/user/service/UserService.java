@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,9 +20,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
   private final String Auth = "Authorization";
   private final UserRepository userRepository;
+  private final PasswordEncoder passwordEncoder;
   private final JwtUtil jwtUtil;
 
+  @Transactional
   public SignupDto signup(SignupDto requestDto) {
+    requestDto.setPassword(passwordEncoder.encode(requestDto.getPassword()));
     User user = new User(requestDto);
     try {
       userRepository.save(user);
@@ -33,11 +37,14 @@ public class UserService {
 
   public Long login(LoginRequestDto requestDto, HttpServletResponse httpServletResponse) {
     String username = requestDto.getUsername();
-    String password = requestDto.getPassword();
     UserNamePassword user;
     String token;
     try {
-       user = userRepository.findByUsernameAndPassword(username,password);
+       user = userRepository.findByUsername(username);
+
+       if(!passwordEncoder.matches(requestDto.getPassword(),user.getPassword())){
+         throw new IllegalArgumentException("유저의 아이디 혹은 비밀 번호가 틀렸습니다.");
+       }
        token = jwtUtil.createToken(user.getId());
     }catch (Exception e){
       throw new NoSuchElementException("유저의 아이디 혹은 비밀 번호가 틀렸습니다.");
@@ -45,14 +52,13 @@ public class UserService {
     jwtUtil.addJwtToHeader(token,httpServletResponse);
     return jwtUtil.giveUserId(token);
   }
-
   //
   @Transactional
-  public Long update(UpdateRequestDto requestDto, User user) throws NoSuchElementException {
-    user.update(requestDto);
-    return user.getId();
+  public Long update(UpdateRequestDto requestDto, User user) {
+    User updateuser=userRepository.findById(user.getId()).orElseThrow(NoSuchElementException::new);
+    updateuser.update(requestDto);
+    return updateuser.getId();
   }
-
   @Transactional
   public Long delete(User user) throws NoSuchElementException {
     try {
@@ -62,7 +68,6 @@ public class UserService {
     }
     return 200L;
   }
-
   public Long userLogout(HttpServletResponse servletResponse) {
     servletResponse.setHeader(Auth,null);
     return 200L;
