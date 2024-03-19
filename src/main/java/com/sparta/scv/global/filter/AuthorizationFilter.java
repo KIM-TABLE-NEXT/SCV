@@ -47,7 +47,6 @@ public class AuthorizationFilter extends
         // info 에서 아이디 을 뽑아와서 저장
         long id = (long)(int) info.get("userId");
 
-
         SecurityContext context = SecurityContextHolder.createEmptyContext();
         // Authentication (인증된 정보) 를 담고 있는 Holder
         // SecurityContextHolder 가 가진 값을 통해 인증이 되었나 확인할 수있음.
