@@ -1,6 +1,7 @@
 package com.sparta.scv.boardcolumn;
 
 import com.sparta.scv.board.Board;
+import com.sparta.scv.board.BoardRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +14,7 @@ public class BoardColumnService {
 
     private final BoardColumnRepository boardColumnRepository;
     private final BoardColumnRepositoryQueryImpl boardColumnRepositoryQuery;
+    private final BoardRepository boardRepository;
 
     public List<BoardColumnResponseDto> getColumns(GetColumnsRequestDto requestDto) {
         return boardColumnRepository.findByBoardIdOrderByPositionAsc(requestDto.getBoardId())
@@ -23,8 +25,9 @@ public class BoardColumnService {
     public Long createColumn(BoardColumnRequestDto requestDto) {
         validatePosition(requestDto.getPosition());
 
-        Board board = new Board();
-        board.setId(requestDto.getBoardId());
+        Board board = boardRepository.findById(requestDto.getBoardId()).orElseThrow(
+            () -> new IllegalArgumentException("해당 ID를 가진 보드는 존재하지 않습니다.")
+        );
 
         Long position = calculatePosition(requestDto.getBoardId(), requestDto.getPosition());
         BoardColumn savedBoardColumn = boardColumnRepository.save(new BoardColumn(requestDto.getColumnName(), position, board));
