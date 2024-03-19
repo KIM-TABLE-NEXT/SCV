@@ -23,7 +23,7 @@ public class UserController {
   private final UserService userService;
 
   @PostMapping("/users/signup")
-  public ResponseEntity<SignupDto> SignUp(@RequestBody SignupDto requestDto) {
+  public ResponseEntity<String> SignUp(@RequestBody SignupDto requestDto) {
     return  ResponseEntity
         .status(HttpStatus.CREATED)
         .body(userService.signup(requestDto));
