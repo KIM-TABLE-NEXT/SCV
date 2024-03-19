@@ -25,21 +25,22 @@ public class BoardColumnService {
         if (originPosition < 1) {
             throw new IllegalArgumentException("순서 값은 1 이상의 값이여야 합니다.");
         }
-        Long maxPosition = boardColumnRepository.findMaxPosition(requestDto.getBoardId()).orElse(0L) / 1000;
+        Long maxPosition = boardColumnRepository.findMaxPosition(requestDto.getBoardId()).orElse(0L) / 1024;
         if (originPosition > maxPosition + 1) {
             originPosition = maxPosition + 2;
         }
         Board board = new Board();
         board.setId(requestDto.getBoardId());
-        Long gapPosition = originPosition * 1000L - 1000L;
+        Long gapPosition = originPosition * 1024L - 1024L;
         Long foundPosition = boardColumnRepositoryQuery.findColumnByPosition(requestDto.getBoardId(), gapPosition);
         if(foundPosition != null){
-            Long setPosition = foundPosition - 1;
+            Long previousPosition = boardColumnRepositoryQuery.findPreviousColumnByPosition(requestDto.getBoardId(), gapPosition);
+            Long setPosition = (foundPosition - previousPosition) / 2;
             BoardColumn savedBoardColumn = boardColumnRepository.save(new BoardColumn(requestDto.getColumnName(), setPosition, board));
             return savedBoardColumn.getId();
         }
         if(gapPosition == 0){
-            gapPosition = 999L;
+            gapPosition = 1024L / 2L;
         }
         BoardColumn savedBoardColumn = boardColumnRepository.save(new BoardColumn(requestDto.getColumnName(), gapPosition, board));
         return savedBoardColumn.getId();
@@ -62,15 +63,18 @@ public class BoardColumnService {
         if (originPosition < 1) {
             throw new IllegalArgumentException("순서 값은 1 이상의 값이여야 합니다.");
         }
-        Long maxPosition = boardColumnRepository.findMaxPosition(boardColumn.getBoard().getId()).orElse(0L) / 1000;
+        Long maxPosition = boardColumnRepository.findMaxPosition(boardColumn.getBoard().getId()).orElse(0L) / 1024;
         if (originPosition > maxPosition + 1) {
             originPosition = maxPosition + 2;
         }
-        Long gapPosition = originPosition * 1000L - 1000L;
+        Long gapPosition = originPosition * 1024L - 1024L;
         Long foundPosition = boardColumnRepositoryQuery.findColumnByPosition(boardColumn.getBoard().getId(), gapPosition);
 
         if(foundPosition != null){
-            gapPosition = foundPosition - 1;
+            Long previousPosition = boardColumnRepositoryQuery.findPreviousColumnByPosition(boardColumn.getBoard().getId(), gapPosition);
+            Long setPosition = (foundPosition - previousPosition) / 2;
+            boardColumn.updatePosition(setPosition);
+            return;
         }
         boardColumn.updatePosition(gapPosition);
     }
