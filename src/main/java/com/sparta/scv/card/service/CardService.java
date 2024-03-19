@@ -52,7 +52,7 @@ public class CardService {
         Card card = getCardById(cardId);
         if(!user.getId().equals(card.getOwner().getId()))
             throw new IllegalArgumentException("해당 카드를 삭제할 권한이 없습니다.");
-        cardRepository.deleteById(cardId);
+        cardRepository.deleteById(card.getId());
         return new CardStatusResponse(200, "OK", card.getId());
     }
 
