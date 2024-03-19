@@ -22,7 +22,6 @@ public class UserService {
   private final PasswordEncoder passwordEncoder;
   private final JwtUtil jwtUtil;
 
-
   public String signup(SignupDto requestDto) {
     requestDto.setPassword(passwordEncoder.encode(requestDto.getPassword()));
     User user = new User(requestDto);
