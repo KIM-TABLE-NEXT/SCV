@@ -1,7 +1,9 @@
-package com.sparta.scv.board;
+package com.sparta.scv.board.repository;
 
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.sparta.scv.board.QBoard;
+import com.sparta.scv.board.dto.BoardDto;
 import com.sparta.scv.boardmember.QBoardMember;
 import com.sparta.scv.user.entity.User;
 import java.util.List;

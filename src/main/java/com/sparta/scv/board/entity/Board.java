@@ -1,4 +1,4 @@
-package com.sparta.scv.board;
+package com.sparta.scv.board.entity;
 
 import com.sparta.scv.user.entity.User;
 import jakarta.persistence.Column;

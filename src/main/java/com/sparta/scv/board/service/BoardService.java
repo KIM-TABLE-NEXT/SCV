@@ -1,9 +1,12 @@
-package com.sparta.scv.board;
+package com.sparta.scv.board.service;
 
-import com.sparta.scv.boardmember.BoardMember;
-import com.sparta.scv.boardmember.BoardMemberRepository;
+import com.sparta.scv.board.dto.BoardDto;
+import com.sparta.scv.board.dto.BoardRequest;
+import com.sparta.scv.board.entity.Board;
+import com.sparta.scv.board.repository.BoardRepository;
+import com.sparta.scv.boardmember.entity.BoardMember;
+import com.sparta.scv.boardmember.repository.BoardMemberRepository;
 import com.sparta.scv.user.entity.User;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
