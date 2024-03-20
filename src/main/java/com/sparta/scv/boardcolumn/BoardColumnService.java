@@ -27,9 +27,7 @@ public class BoardColumnService {
     public Long createColumn(BoardColumnRequestDto requestDto) {
         validatePosition(requestDto.getPosition());
 
-        Board board = boardRepository.findById(requestDto.getBoardId()).orElseThrow(
-            () -> new IllegalArgumentException("해당 ID를 가진 보드는 존재하지 않습니다.")
-        );
+        Board board = findBoard(requestDto.getBoardId());
 
         Long position = calculatePosition(requestDto.getBoardId(), requestDto.getPosition());
         BoardColumn savedBoardColumn = boardColumnRepository.save(new BoardColumn(requestDto.getColumnName(), position, board));
@@ -39,9 +37,7 @@ public class BoardColumnService {
 
     @Transactional
     public void updateColumnName(Long boardColumnId, NameUpdateDto requestDto) {
-        BoardColumn boardColumn = boardColumnRepository.findById(boardColumnId).orElseThrow(
-            () -> new IllegalArgumentException("해당 ID를 가진 컬럼은 존재하지 않습니다.")
-        );
+        BoardColumn boardColumn = findColumn(boardColumnId);
         boardColumn.updateName(requestDto.getBoardColumnName());
     }
 
@@ -49,8 +45,7 @@ public class BoardColumnService {
     public void updateColumnPosition(Long boardColumnId, PositionUpdateDto requestDto) {
         validatePosition(requestDto.getPosition());
 
-        BoardColumn boardColumn = boardColumnRepository.findById(boardColumnId)
-            .orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 컬럼은 존재하지 않습니다."));
+        BoardColumn boardColumn = findColumn(boardColumnId);
 
         Long position = calculatePosition(boardColumn.getBoard().getId(), requestDto.getPosition());
         boardColumn.updatePosition(position);
@@ -58,16 +53,24 @@ public class BoardColumnService {
 
     @Transactional
     public void deleteColumn(Long boardColumnId, BoardIdRequestDto requestDto, User user) {
-        Board board = boardRepository.findById(requestDto.getBoardId()).orElseThrow(
-            () -> new IllegalArgumentException("해당 ID를 가진 보드는 존재하지 않습니다.")
-        );
+        Board board = findBoard(requestDto.getBoardId());
         if (!Objects.equals(board.getOwner().getId(), user.getId())) {
             throw new IllegalArgumentException("컬럼의 삭제는 보드의 주인만 가능합니다.");
         };
-        BoardColumn boardColumn = boardColumnRepository.findById(boardColumnId).orElseThrow(
+        BoardColumn boardColumn = findColumn(boardColumnId);
+        boardColumnRepository.delete(boardColumn);
+    }
+
+    private BoardColumn findColumn(Long boardColumnId) {
+        return boardColumnRepository.findById(boardColumnId).orElseThrow(
             () -> new IllegalArgumentException("해당 ID를 가진 컬럼은 존재하지 않습니다.")
         );
-        boardColumnRepository.delete(boardColumn);
+    }
+
+    private Board findBoard(Long boardId) {
+        return boardRepository.findById(boardId).orElseThrow(
+            () -> new IllegalArgumentException("해당 ID를 가진 보드는 존재하지 않습니다.")
+        );
     }
 
     private void validatePosition(Long position) {
