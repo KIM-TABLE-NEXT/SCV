@@ -18,44 +18,41 @@ public class BoardColumnController {
 
     @BoardMemberOnly
     @GetMapping("/boardcolumns")
-    public ResponseEntity<List<BoardColumnResponseDto>> getColumns(@RequestBody GetColumnsRequestDto requestDto,
-                                                                   @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<List<BoardColumnResponseDto>> getColumns(@RequestBody BoardIdRequestDto requestDto) {
         List<BoardColumnResponseDto> responseDtoList = boardColumnService.getColumns(requestDto);
         return ResponseEntity.status(201).body(responseDtoList);
     }
 
-    @PostMapping("/boards/{boardId}/boardcolumns")
+    @PostMapping("/boardcolumns")
     @BoardMemberOnly
-    public ResponseEntity<ResultResponseDto> createColumn(@PathVariable Long boardId,
-                                                          @RequestBody BoardColumnRequestDto requestDto,
-                                                          @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<ResultResponseDto> createColumn(@RequestBody BoardColumnRequestDto requestDto) {
         Long boardColumnId = boardColumnService.createColumn(requestDto);
         return ResponseEntity.status(201).body(new ResultResponseDto(201, "OK", boardColumnId));
     }
 
     @BoardMemberOnly
     @PutMapping("/boardcolumns/update-name/{boardcolumnId}")
-    public ResponseEntity<ResultResponseDto> updateColumnName(@PathVariable Long boardcolumnId,
-                                                              @RequestBody NameUpdateDto requestDto,
-                                                              @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<ResultResponseDto> updateColumnName(@RequestBody NameUpdateDto requestDto,
+                                                              @PathVariable Long boardcolumnId) {
         boardColumnService.updateColumnName(boardcolumnId, requestDto);
         return ResponseEntity.status(201).body(new ResultResponseDto(201, "OK", boardcolumnId));
     }
 
     @BoardMemberOnly
     @PutMapping("/boardcolumns/update-position/{boardcolumnId}")
-    public ResponseEntity<ResultResponseDto> updateColumnPosition(@PathVariable Long boardcolumnId,
-                                                                  @RequestBody PositionUpdateDto requestDto,
-                                                                  @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<ResultResponseDto> updateColumnPosition(@RequestBody PositionUpdateDto requestDto,
+                                                                  @PathVariable Long boardcolumnId) {
         boardColumnService.updateColumnPosition(boardcolumnId, requestDto);
         return ResponseEntity.status(201).body(new ResultResponseDto(201, "OK", boardcolumnId));
     }
 
     @BoardMemberOnly
     @DeleteMapping("/boardcolumns/{boardcolumnId}")
-    public ResponseEntity<ResultResponseDto> deleteColumn(@PathVariable Long boardcolumnId,
+    public ResponseEntity<ResultResponseDto> deleteColumn(@RequestBody BoardIdRequestDto requestDto,
+                                                          @PathVariable Long boardcolumnId,
                                                           @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        boardColumnService.deleteColumn(boardcolumnId);
+
+        boardColumnService.deleteColumn(boardcolumnId, requestDto, userDetails.getUser());
         return ResponseEntity.status(201).body(new ResultResponseDto(201, "OK", boardcolumnId));
     }
 }

@@ -2,11 +2,13 @@ package com.sparta.scv.boardcolumn;
 
 import com.sparta.scv.board.Board;
 import com.sparta.scv.board.BoardRepository;
+import com.sparta.scv.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -16,7 +18,7 @@ public class BoardColumnService {
     private final BoardColumnRepositoryQueryImpl boardColumnRepositoryQuery;
     private final BoardRepository boardRepository;
 
-    public List<BoardColumnResponseDto> getColumns(GetColumnsRequestDto requestDto) {
+    public List<BoardColumnResponseDto> getColumns(BoardIdRequestDto requestDto) {
         return boardColumnRepository.findByBoardIdOrderByPositionAsc(requestDto.getBoardId())
             .stream().map(BoardColumnResponseDto::new).toList();
     }
@@ -55,7 +57,13 @@ public class BoardColumnService {
     }
 
     @Transactional
-    public void deleteColumn(Long boardColumnId) {
+    public void deleteColumn(Long boardColumnId, BoardIdRequestDto requestDto, User user) {
+        Board board = boardRepository.findById(requestDto.getBoardId()).orElseThrow(
+            () -> new IllegalArgumentException("해당 ID를 가진 보드는 존재하지 않습니다.")
+        );
+        if (!Objects.equals(board.getOwner().getId(), user.getId())) {
+            throw new IllegalArgumentException("컬럼의 삭제는 보드의 주인만 가능합니다.");
+        };
         BoardColumn boardColumn = boardColumnRepository.findById(boardColumnId).orElseThrow(
             () -> new IllegalArgumentException("해당 ID를 가진 컬럼은 존재하지 않습니다.")
         );
