@@ -93,9 +93,6 @@ public class BoardMemberService {
         }
     }
 
-    private void saveBoardMember(User invitedUser, Board board) {
-        boardMemberRepository.save(new BoardMember(invitedUser, board));
-    }
 
     private void validateDeletePermission(Board board, Long memberId, User user) {
         if (board.getOwner().getId().equals(memberId)) {
