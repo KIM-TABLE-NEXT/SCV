@@ -8,10 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-import org.springframework.web.server.ResponseStatusException;
 
 @Slf4j(topic = "BoardMemberAop")
 @Aspect
@@ -42,7 +40,7 @@ public class BoardMemberAop {
 
         boolean isExistMember = boardMemberRepository.existsByUserIdAndBoardId(userId, boardId);
         if (!isExistMember) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "해당 보드의 멤버만 접근이 가능합니다");
+            throw new BoardAccessDeniedException("해당 보드의 멤버만 접근이 가능합니다");
         }
     }
 }
