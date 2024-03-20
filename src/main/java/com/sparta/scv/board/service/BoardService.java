@@ -32,15 +32,19 @@ public class BoardService {
         return boardRepository.getBoards(user);
     }
 
+    @Transactional
     public Long updateBoard(Long boardId, BoardRequest boardRequest, User user) {
-        Board board = getBoardById(boardId);
+        Board board = new Board(boardId);
+        boardExistsById(boardId);
         validateBoardOwner(user, board);
         updateBoardAttributes(board, boardRequest);
         return board.getId();
     }
 
+    @Transactional
     public Long deleteBoard(Long boardId, User user) {
-        Board board = getBoardById(boardId);
+        Board board = new Board(boardId);
+        boardExistsById(boardId);
         validateBoardOwner(user, board);
         board.deleteBoard();
         return board.getId();
@@ -60,9 +64,11 @@ public class BoardService {
         boardMemberRepository.save(new BoardMember(board.getOwner(), board));
     }
 
-    private Board getBoardById(Long boardId) {
-        return boardRepository.findById(boardId)
-            .orElseThrow(() -> new IllegalArgumentException("Board not found"));
+
+    private void boardExistsById(Long boardId) {
+        if(!boardRepository.existsById(boardId)){
+            throw new IllegalArgumentException("Board with id " + boardId + " does not exist");
+        }
     }
 
     private void validateBoardOwner(User user, Board board) {

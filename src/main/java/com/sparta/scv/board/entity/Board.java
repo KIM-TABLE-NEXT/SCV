@@ -49,6 +49,10 @@ public class Board {
     this.owner = owner;
   }
 
+  public Board(Long boardId) {
+    this.id = boardId;
+  }
+
   public void updateBoard(String name, String description, String color) {
     this.name = name;
     this.description = description;
