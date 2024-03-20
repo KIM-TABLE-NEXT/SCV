@@ -34,20 +34,25 @@ public class BoardService {
 
     @Transactional
     public Long updateBoard(Long boardId, BoardRequest boardRequest, User user) {
-        Board board = new Board(boardId);
-        boardExistsById(boardId);
+        Board board = getBoardById(boardId);
         validateBoardOwner(user, board);
         updateBoardAttributes(board, boardRequest);
         return board.getId();
     }
 
+
     @Transactional
     public Long deleteBoard(Long boardId, User user) {
-        Board board = new Board(boardId);
-        boardExistsById(boardId);
+        Board board = getBoardById(boardId);
         validateBoardOwner(user, board);
         board.deleteBoard();
         return board.getId();
+    }
+
+    private Board getBoardById(Long boardId) {
+        return boardRepository.findById(boardId).orElseThrow(
+            IllegalArgumentException::new
+        );
     }
 
     private Board createBoardEntity(User user, BoardRequest boardRequest) {
@@ -64,12 +69,6 @@ public class BoardService {
         boardMemberRepository.save(new BoardMember(board.getOwner(), board));
     }
 
-
-    private void boardExistsById(Long boardId) {
-        if(!boardRepository.existsById(boardId)){
-            throw new IllegalArgumentException("Board with id " + boardId + " does not exist");
-        }
-    }
 
     private void validateBoardOwner(User user, Board board) {
         if (!Objects.equals(board.getOwner().getId(), user.getId())) {

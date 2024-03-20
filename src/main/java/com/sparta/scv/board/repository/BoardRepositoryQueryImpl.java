@@ -21,15 +21,15 @@ public class BoardRepositoryQueryImpl implements BoardRepositoryQuery{
         QBoard qBoard = QBoard.board;
         QBoardMember qBoardMember = QBoardMember.boardMember;
 
-        return queryFactory
-            .select(Projections.constructor(BoardDto.class,
-                qBoard.id,
-                qBoard.name))
+        List<BoardDto> fetch = queryFactory
+            .select(Projections.constructor(BoardDto.class, qBoard.id, qBoard.name))
             .from(qBoardMember)
             .join(qBoardMember.board, qBoard)
             .where(qBoardMember.user.eq(user)
                 .and(qBoard.state.isTrue()))
             .fetch();
+
+        return fetch;
     }
 }
 

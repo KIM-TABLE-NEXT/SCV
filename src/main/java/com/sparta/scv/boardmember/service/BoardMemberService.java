@@ -60,14 +60,19 @@ public class BoardMemberService {
 
     @Transactional
     public Long deleteBoardMember(BoardMemberRequest boardMemberRequest, User user) {
-        Board board = new Board(boardMemberRequest.getBoardId());
+        Board board = getBoardById(boardMemberRequest);
         User deletedUser = new User(boardMemberRequest.getUserId());
 
-        existsBoardById(boardMemberRequest.getBoardId());
         validateDeletePermission(board, boardMemberRequest.getUserId(), user);
         boardMemberRepository.deleteByUserAndBoard(deletedUser, board);
 
         return deletedUser.getId();
+    }
+
+    private Board getBoardById(BoardMemberRequest boardMemberRequest) {
+        return boardRepository.findById(boardMemberRequest.getBoardId()).orElseThrow(
+            IllegalArgumentException::new
+        );
     }
 
     private void existsUserById(User user) {
