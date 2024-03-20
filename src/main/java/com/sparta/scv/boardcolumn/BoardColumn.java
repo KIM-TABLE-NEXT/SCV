@@ -1,6 +1,6 @@
 package com.sparta.scv.boardcolumn;
 
-import com.sparta.scv.board.Board;
+import com.sparta.scv.board.entity.Board;
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;

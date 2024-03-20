@@ -1,5 +1,8 @@
-package com.sparta.scv.board;
+package com.sparta.scv.board.controller;
 
+import com.sparta.scv.board.dto.BoardDto;
+import com.sparta.scv.board.dto.BoardRequest;
+import com.sparta.scv.board.service.BoardService;
 import com.sparta.scv.global.impl.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
