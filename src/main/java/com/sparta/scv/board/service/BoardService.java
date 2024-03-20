@@ -20,6 +20,7 @@ public class BoardService {
     private final BoardRepository boardRepository;
     private final BoardMemberRepository boardMemberRepository;
 
+    @Transactional
     public Long createBoard(User user, BoardRequest boardRequest) {
         Board board = createBoardEntity(user, boardRequest);
         saveBoardAndMember(board);
