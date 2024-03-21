@@ -1,6 +1,5 @@
 package com.sparta.scv.boardcolumn;
 
-
 import com.sparta.scv.board.entity.Board;
 import com.sparta.scv.board.repository.BoardRepository;
 import com.sparta.scv.user.entity.User;
@@ -53,19 +52,16 @@ public class BoardColumnService {
     }
 
     @Transactional
-    public void deleteColumn(Long boardColumnId, BoardIdRequestDto requestDto, User user) {
-        Board board = findBoard(requestDto.getBoardId());
-        if (!Objects.equals(board.getOwner().getId(), user.getId())) {
+    public void deleteColumn(Long boardColumnId, User user) {
+        BoardColumn boardColumn = findColumn(boardColumnId);
+        if (!Objects.equals(boardColumn.getBoard().getOwner().getId(), user.getId())) {
             throw new IllegalArgumentException("컬럼의 삭제는 보드의 주인만 가능합니다.");
         };
-        BoardColumn boardColumn = findColumn(boardColumnId);
         boardColumnRepository.delete(boardColumn);
     }
 
     private BoardColumn findColumn(Long boardColumnId) {
-        return boardColumnRepository.findById(boardColumnId).orElseThrow(
-            () -> new IllegalArgumentException("해당 ID를 가진 컬럼은 존재하지 않습니다.")
-        );
+        return boardColumnRepositoryQuery.findColumnById(boardColumnId);
     }
 
     private Board findBoard(Long boardId) {

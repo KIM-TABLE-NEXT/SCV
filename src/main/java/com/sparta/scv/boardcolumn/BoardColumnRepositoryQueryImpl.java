@@ -1,12 +1,11 @@
 package com.sparta.scv.boardcolumn;
 
-import static com.sparta.scv.boardcolumn.QBoardColumn.boardColumn;
-
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
 
+import static com.sparta.scv.boardcolumn.QBoardColumn.boardColumn;
 
 
 @Repository
@@ -19,6 +18,15 @@ public class BoardColumnRepositoryQueryImpl {
 
     public BoardColumnRepositoryQueryImpl(EntityManager em) {
         this.qf = new JPAQueryFactory(em);
+    }
+
+    public BoardColumn findColumnById(Long boardColumnId) {
+        return qf
+            .selectFrom(boardColumn)
+            .leftJoin(boardColumn.board).fetchJoin()
+            .leftJoin(boardColumn.board.owner).fetchJoin()
+            .where(boardColumn.id.eq(boardColumnId))
+            .fetchOne();
     }
 
     public Long findColumnByPosition(Long boardId, Long index) {
