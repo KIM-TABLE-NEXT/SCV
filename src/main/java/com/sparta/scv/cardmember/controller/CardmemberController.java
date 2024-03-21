@@ -1,5 +1,6 @@
 package com.sparta.scv.cardmember.controller;
 
+import com.sparta.scv.annotation.BoardMemberOnly;
 import com.sparta.scv.cardmember.dto.request.CardMemberIdRequest;
 import com.sparta.scv.cardmember.dto.request.CardMemberRequest;
 import com.sparta.scv.cardmember.dto.response.CardMemberResponse;
@@ -27,6 +28,7 @@ public class CardmemberController {
 
     private final CardmemberService cardmemberService;
 
+    @BoardMemberOnly
     @PostMapping
     @Operation(summary = "작업자 추가", description = "작업자를 추가한다.")
     public ResponseEntity<CardMemberStatusResponse> createCardMember(@RequestBody CardMemberRequest cardMemberRequest, @AuthenticationPrincipal
@@ -34,12 +36,14 @@ public class CardmemberController {
         return ResponseEntity.status(200).body(cardmemberService.createCardMember(cardMemberRequest, userDetails.getUser()));
     }
 
+    @BoardMemberOnly
     @GetMapping
     @Operation(summary = "작업자 조회", description = "카드 ID를 통해 작업자를 조회한다.")
     public List<CardMemberResponse> getCardMember(@RequestBody CardMemberIdRequest cardMemberIdRequest){
         return cardmemberService.getCardMember(cardMemberIdRequest);
     }
 
+    @BoardMemberOnly
     @DeleteMapping
     @Operation(summary = "작업자 조회", description = "카드 ID를 통해 작업자를 삭제한다.")
     public ResponseEntity<CardMemberStatusResponse> deleteCardMember(@RequestBody CardMemberRequest cardMemberRequest, @AuthenticationPrincipal

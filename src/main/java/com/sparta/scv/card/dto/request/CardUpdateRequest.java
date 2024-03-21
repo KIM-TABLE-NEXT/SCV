@@ -4,9 +4,8 @@ import com.sparta.scv.board.BoardIdHolder;
 import lombok.Getter;
 
 @Getter
-public class CardRequest implements BoardIdHolder {
+public class CardUpdateRequest implements BoardIdHolder {
     private Long boardId;
-    private Long columnId;
     private String title;
     private String description;
     private String color;
