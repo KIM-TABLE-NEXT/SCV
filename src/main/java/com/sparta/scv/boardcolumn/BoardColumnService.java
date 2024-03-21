@@ -1,14 +1,18 @@
 package com.sparta.scv.boardcolumn;
 
+import com.sparta.scv.board.dto.BoardRequest;
 import com.sparta.scv.board.entity.Board;
 import com.sparta.scv.board.repository.BoardRepository;
 import com.sparta.scv.user.entity.User;
 import lombok.RequiredArgsConstructor;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -17,6 +21,7 @@ public class BoardColumnService {
     private final BoardColumnRepository boardColumnRepository;
     private final BoardColumnRepositoryQueryImpl boardColumnRepositoryQuery;
     private final BoardRepository boardRepository;
+    private final RedissonClient redissonClient;
 
     public List<BoardColumnResponseDto> getColumns(BoardIdRequestDto requestDto) {
         return boardColumnRepository.findByBoardIdOrderByPositionAsc(requestDto.getBoardId())
@@ -37,18 +42,63 @@ public class BoardColumnService {
 
     @Transactional
     public void updateColumnName(Long boardColumnId, NameUpdateDto requestDto) {
-        BoardColumn boardColumn = findColumn(boardColumnId);
-        boardColumn.updateName(requestDto.getBoardColumnName());
+        String lockKey = "Column" + boardColumnId;
+        RLock lock = redissonClient.getFairLock(lockKey);
+        try {
+            boolean isLocked = lock.tryLock(10, 60, TimeUnit.SECONDS);
+            if (isLocked) {
+                try {
+                    BoardColumn boardColumn = findColumn(boardColumnId);
+                    boardColumn.updateName(requestDto.getBoardColumnName());
+                } finally {
+                    lock.unlock();
+                }
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     @Transactional
-    public void updateColumnPosition(Long boardColumnId, PositionUpdateDto requestDto) {
-        validatePosition(requestDto.getPosition());
+    public void updateRockColumnTest(Long boardColumnId, String columnName, int i) {
 
         BoardColumn boardColumn = findColumn(boardColumnId);
 
-        Long position = calculatePosition(boardColumn.getBoard().getId(), requestDto.getPosition());
-        boardColumn.updatePosition(position);
+        RLock lock = redissonClient.getFairLock("board:" + boardColumnId);
+        try {
+            lock.lock();
+            System.out.println(i + "번째 락 시작 boardId = " + boardColumnId);
+
+            boardColumn.updateName(columnName);
+        } finally {
+            System.out.println(i + "번째 락 종료 boardId = " + boardColumnId);
+            lock.unlock();
+        }
+    }
+
+
+
+    @Transactional
+    public void updateColumnPosition(Long boardColumnId, PositionUpdateDto requestDto) {
+        String lockKey = "Column" + boardColumnId;
+        RLock lock = redissonClient.getFairLock(lockKey);
+        try {
+            boolean isLocked = lock.tryLock(10, 60, TimeUnit.SECONDS);
+            if (isLocked) {
+                try {
+                    validatePosition(requestDto.getPosition());
+
+                    BoardColumn boardColumn = findColumn(boardColumnId);
+
+                    Long position = calculatePosition(boardColumn.getBoard().getId(), requestDto.getPosition());
+                    boardColumn.updatePosition(position);
+                } finally {
+                    lock.unlock();
+                }
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     @Transactional

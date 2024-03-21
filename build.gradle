@@ -47,6 +47,7 @@ dependencies {
     runtimeOnly 'com.mysql:mysql-connector-j'   // mysql
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'  // test
+    testImplementation 'org.springframework.security:spring-security-test'
 }
 
 tasks.named('test') {
