@@ -11,7 +11,13 @@ import com.sparta.scv.card.repository.CardRepository;
 import com.sparta.scv.user.entity.User;
 import com.sparta.scv.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
+import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -21,6 +27,8 @@ public class CardService {
     private final CardRepository cardRepository;
     private final BoardColumnRepository boardColumnRepository;
     private final UserRepository userRepository;
+
+    private final RedissonClient redissonClient;
 
     @Transactional
     public CardStatusResponse createCard(CardRequest cardRequest, User user) {
@@ -43,7 +51,23 @@ public class CardService {
         if(!user.getId().equals(card.getOwner().getId()))
             throw new IllegalArgumentException("해당 카드를 수정할 권한이 없습니다.");
 
-        card.update(cardUpdateRequest);
+        RLock lock = redissonClient.getFairLock("card:" + cardId);
+        try{
+            if(lock.tryLock(10, 60, TimeUnit.SECONDS)){
+                try{
+                    card.update(cardUpdateRequest);
+                } finally {
+                    lock.unlock();
+                }
+            }
+            else{
+                throw new IllegalArgumentException("다른 유저가 이미 수정중입니다.");
+            }
+        } catch (InterruptedException e){
+            Thread.currentThread().interrupt();
+        }
+
+
         return new CardStatusResponse(201, "OK", card.getId());
     }
 
