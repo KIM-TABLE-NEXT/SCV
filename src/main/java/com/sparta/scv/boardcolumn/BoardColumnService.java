@@ -1,5 +1,6 @@
 package com.sparta.scv.boardcolumn;
 
+import com.sparta.scv.annotation.WithDistributedLock;
 import com.sparta.scv.board.dto.BoardRequest;
 import com.sparta.scv.board.entity.Board;
 import com.sparta.scv.board.repository.BoardRepository;
@@ -41,26 +42,14 @@ public class BoardColumnService {
     }
 
     @Transactional
+    @WithDistributedLock(lockName = "#boardColumnId")
     public void updateColumnName(Long boardColumnId, NameUpdateDto requestDto) {
-        String lockKey = "Column" + boardColumnId;
-        RLock lock = redissonClient.getFairLock(lockKey);
-        try {
-            boolean isLocked = lock.tryLock(10, 60, TimeUnit.SECONDS);
-            if (isLocked) {
-                try {
-                    BoardColumn boardColumn = findColumn(boardColumnId);
-                    boardColumn.updateName(requestDto.getBoardColumnName());
-                } finally {
-                    lock.unlock();
-                }
-            }
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        BoardColumn boardColumn = findColumn(boardColumnId);
+        boardColumn.updateName(requestDto.getBoardColumnName());
     }
 
     @Transactional
-    public void updateRockColumnTest(Long boardColumnId, String columnName, int i) {
+    public void updateLockColumnTest(Long boardColumnId, String columnName, int i) {
 
         BoardColumn boardColumn = findColumn(boardColumnId);
 
@@ -79,26 +68,14 @@ public class BoardColumnService {
 
 
     @Transactional
+    @WithDistributedLock(lockName = "#boardColumnId")
     public void updateColumnPosition(Long boardColumnId, PositionUpdateDto requestDto) {
-        String lockKey = "Column" + boardColumnId;
-        RLock lock = redissonClient.getFairLock(lockKey);
-        try {
-            boolean isLocked = lock.tryLock(10, 60, TimeUnit.SECONDS);
-            if (isLocked) {
-                try {
-                    validatePosition(requestDto.getPosition());
+        validatePosition(requestDto.getPosition());
 
-                    BoardColumn boardColumn = findColumn(boardColumnId);
+        BoardColumn boardColumn = findColumn(boardColumnId);
 
-                    Long position = calculatePosition(boardColumn.getBoard().getId(), requestDto.getPosition());
-                    boardColumn.updatePosition(position);
-                } finally {
-                    lock.unlock();
-                }
-            }
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        Long position = calculatePosition(boardColumn.getBoard().getId(), requestDto.getPosition());
+        boardColumn.updatePosition(position);
     }
 
     @Transactional
