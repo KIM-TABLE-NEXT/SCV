@@ -1,5 +1,6 @@
 package com.sparta.scv.user.service;
 
+import com.esotericsoftware.minlog.Log;
 import com.sparta.scv.global.jwt.JwtUtil;
 import com.sparta.scv.user.dto.LoginRequestDto;
 import com.sparta.scv.user.dto.SignupDto;
@@ -9,7 +10,11 @@ import com.sparta.scv.user.repository.UserNamePassword;
 import com.sparta.scv.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.NoSuchElementException;
+import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,10 +22,15 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-  private final String Auth = "Authorization";
+  private static final String Auth = "Authorization";
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
   private final JwtUtil jwtUtil;
+
+  //redis
+  private final RedissonClient redissonClient;
+  private final StringRedisTemplate stringRedisTemplate;
+  private static final String LOCK_KEY = "Lock";
 
   public String signup(SignupDto requestDto) {
     requestDto.setPassword(passwordEncoder.encode(requestDto.getPassword()));
@@ -53,9 +63,24 @@ public class UserService {
   //
   @Transactional
   public Long update(UpdateRequestDto requestDto, User user) {
-    User updateuser=userRepository.findById(user.getId()).orElseThrow(NoSuchElementException::new);
-    updateuser.update(requestDto);
-    return updateuser.getId();
+    RLock lock = redissonClient.getFairLock(LOCK_KEY);
+    Long returnlong = 404L;
+    try {
+      boolean isLocked = lock.tryLock(10,60, TimeUnit.SECONDS);
+      if(isLocked){
+        try {
+          User updateuser=userRepository.findById(user.getId()).orElseThrow(NoSuchElementException::new);
+          updateuser.update(requestDto);
+          returnlong = updateuser.getId();
+        }
+        finally {
+          lock.unlock();
+        }
+      }
+    } catch (InterruptedException e){
+      Thread.currentThread().interrupt();
+    }
+    return returnlong;
   }
   @Transactional
   public Long delete(User user) throws NoSuchElementException {
