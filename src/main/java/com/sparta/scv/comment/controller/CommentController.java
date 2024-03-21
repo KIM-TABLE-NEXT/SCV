@@ -1,5 +1,7 @@
 package com.sparta.scv.comment.controller;
 
+import com.sparta.scv.annotation.BoardMemberOnly;
+import com.sparta.scv.boardcolumn.BoardIdRequestDto;
 import com.sparta.scv.comment.dto.request.CommentIdRequest;
 import com.sparta.scv.comment.dto.request.CommentRequest;
 import com.sparta.scv.comment.dto.response.CommentResponse;
@@ -29,6 +31,7 @@ public class CommentController {
 
     private final CommentService commentService;
 
+    @BoardMemberOnly
     @PostMapping
     @Operation(summary = "댓글 생성", description = "카드 ID를 통해 댓글을 생성한다.")
     public ResponseEntity<CommentStatusResponse> createComment(@RequestBody CommentRequest commentRequest, @AuthenticationPrincipal
@@ -36,21 +39,24 @@ public class CommentController {
         return ResponseEntity.status(201).body(commentService.createComment(commentRequest, userDetails.getUser()));
     }
 
+    @BoardMemberOnly
     @GetMapping
     @Operation(summary = "댓글 조회", description = "카드 ID를 통해 댓글을 조회한다.")
     public List<CommentResponse> getComment(@RequestBody CommentIdRequest commentIdRequest){
         return commentService.getComment(commentIdRequest);
     }
 
+    @BoardMemberOnly
     @PutMapping("/{commentId}")
     @Operation(summary = "댓글 수정", description = "댓글 ID를 통해 댓글을 수정한다.")
-    public ResponseEntity<CommentStatusResponse> updateComment(@PathVariable Long commentId, @RequestBody CommentRequest commentRequest, @AuthenticationPrincipal UserDetailsImpl userDetails){
+    public ResponseEntity<CommentStatusResponse> updateComment(@RequestBody CommentRequest commentRequest, @PathVariable Long commentId, @AuthenticationPrincipal UserDetailsImpl userDetails){
         return ResponseEntity.status(201).body(commentService.updateComment(commentId, commentRequest, userDetails.getUser()));
     }
 
+    @BoardMemberOnly
     @DeleteMapping("/{commentId}")
     @Operation(summary = "댓글 삭제", description = "댓글 ID를 통해 댓글을 삭제한다.")
-    public ResponseEntity<CommentStatusResponse> deleteComment(@PathVariable Long commentId, @AuthenticationPrincipal UserDetailsImpl userDetails){
+    public ResponseEntity<CommentStatusResponse> deleteComment(@RequestBody BoardIdRequestDto boardIdRequestDto, @PathVariable Long commentId, @AuthenticationPrincipal UserDetailsImpl userDetails){
         return ResponseEntity.status(200).body(commentService.deleteComment(commentId, userDetails.getUser()));
     }
 }
