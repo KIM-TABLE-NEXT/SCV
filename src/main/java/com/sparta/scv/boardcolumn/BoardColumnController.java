@@ -20,7 +20,7 @@ public class BoardColumnController {
     @GetMapping("/boardcolumns")
     public ResponseEntity<List<BoardColumnResponseDto>> getColumns(@RequestBody BoardIdRequestDto requestDto) {
         List<BoardColumnResponseDto> responseDtoList = boardColumnService.getColumns(requestDto);
-        return ResponseEntity.status(201).body(responseDtoList);
+        return ResponseEntity.status(200).body(responseDtoList);
     }
 
     @PostMapping("/boardcolumns")
@@ -48,11 +48,10 @@ public class BoardColumnController {
 
     @BoardMemberOnly
     @DeleteMapping("/boardcolumns/{boardcolumnId}")
-    public ResponseEntity<ResultResponseDto> deleteColumn(@RequestBody BoardIdRequestDto requestDto,
-                                                          @PathVariable Long boardcolumnId,
+    public ResponseEntity<ResultResponseDto> deleteColumn(@PathVariable Long boardcolumnId,
                                                           @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
-        boardColumnService.deleteColumn(boardcolumnId, requestDto, userDetails.getUser());
+        boardColumnService.deleteColumn(boardcolumnId, userDetails.getUser());
         return ResponseEntity.status(201).body(new ResultResponseDto(201, "OK", boardcolumnId));
     }
 }
