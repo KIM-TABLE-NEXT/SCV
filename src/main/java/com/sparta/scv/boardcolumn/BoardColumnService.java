@@ -1,7 +1,7 @@
 package com.sparta.scv.boardcolumn;
 
-import com.sparta.scv.board.Board;
-import com.sparta.scv.board.BoardRepository;
+import com.sparta.scv.board.entity.Board;
+import com.sparta.scv.board.repository.BoardRepository;
 import com.sparta.scv.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
