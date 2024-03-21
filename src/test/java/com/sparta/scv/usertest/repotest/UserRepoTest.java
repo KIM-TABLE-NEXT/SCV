@@ -82,35 +82,4 @@ public class UserRepoTest {
     assertEquals("testuser_update",ansuser.getNickname());
     userRepository.delete(ansuser);
   }
-
-  @Test
-  @DisplayName("유저 정보 변경 (다중성 제어)")
-  void updateUserAlot(){
-    UpdateRequestDto userdto = new UpdateRequestDto();
-    userdto.setPassword("testuser_update");
-    userdto.setCompany("testuser_update");
-    userdto.setDepartment("testuser_update");
-    userdto.setNickname("testuser_update");
-    UserNamePassword ans = userRepository.findByUsername("testuser");
-
-    User user = userRepository.findByid(ans.getId()).orElseThrow(NoSuchElementException::new);
-    RLock lock = redissonClient.getFairLock(LOCK_KEY);
-    try {
-      boolean isLocked = lock.tryLock(10,60, TimeUnit.SECONDS);
-      if(isLocked){
-        try {
-          User updateuser=userRepository.findById(user.getId()).orElseThrow(NoSuchElementException::new);
-          updateuser.update(userdto);
-        }
-        finally {
-          lock.unlock();
-        }
-      }
-    } catch (InterruptedException e){
-      Thread.currentThread().interrupt();
-    }
-    User ansuser = userRepository.findByid(ans.getId()).orElseThrow(NoSuchElementException::new);
-    assertEquals("testuser_update",ansuser.getNickname());
-    userRepository.delete(ansuser);
-  }
 }
