@@ -3,6 +3,7 @@ package com.sparta.scv.user.entity;
 import com.sparta.scv.user.dto.SignupDto;
 import com.sparta.scv.user.dto.UpdateRequestDto;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 @NoArgsConstructor
 @Getter
 @DynamicUpdate
+@AllArgsConstructor
 public class User {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
