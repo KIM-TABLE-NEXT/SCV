@@ -1,4 +1,4 @@
-package com.sparta.scv.board;
+package com.sparta.scv.board.entity;
 
 import com.sparta.scv.user.entity.User;
 import jakarta.persistence.Column;
@@ -47,6 +47,10 @@ public class Board {
     this.color = color;
     this.state = true;
     this.owner = owner;
+  }
+
+  public Board(Long boardId) {
+    this.id = boardId;
   }
 
   public void updateBoard(String name, String description, String color) {

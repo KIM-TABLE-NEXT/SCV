@@ -20,6 +20,15 @@ public class BoardColumnRepositoryQueryImpl {
         this.qf = new JPAQueryFactory(em);
     }
 
+    public BoardColumn findColumnById(Long boardColumnId) {
+        return qf
+            .selectFrom(boardColumn)
+            .leftJoin(boardColumn.board).fetchJoin()
+            .leftJoin(boardColumn.board.owner).fetchJoin()
+            .where(boardColumn.id.eq(boardColumnId))
+            .fetchOne();
+    }
+
     public Long findColumnByPosition(Long boardId, Long index) {
         Long result = qf
             .select(boardColumn.position)

@@ -1,4 +1,4 @@
-package com.sparta.scv.boardmember;
+package com.sparta.scv.boardmember.dto;
 
 import lombok.Getter;
 
