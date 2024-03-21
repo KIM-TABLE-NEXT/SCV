@@ -1,7 +1,7 @@
 package com.sparta.scv.aop;
 
 import com.sparta.scv.board.BoardIdHolder;
-import com.sparta.scv.boardmember.BoardMemberRepository;
+import com.sparta.scv.boardmember.repository.BoardMemberRepository;
 import com.sparta.scv.global.exception.BoardAccessDeniedException;
 import com.sparta.scv.global.impl.UserDetailsImpl;
 import lombok.extern.slf4j.Slf4j;

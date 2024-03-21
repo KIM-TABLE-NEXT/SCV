@@ -58,6 +58,7 @@ public class WebSecurityConfig {
             .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
             .requestMatchers("/users/login").permitAll() // permitAll() : 접근 허가
             .requestMatchers("/users/signup").permitAll()
+            .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
             //anyRequest() : 위 설정 이외 모두
             .anyRequest().authenticated() // authenticated() : jwt 인증 필요함
     );
