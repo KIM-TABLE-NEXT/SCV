@@ -1,14 +1,19 @@
 package com.sparta.scv.boardcolumn;
 
+import com.sparta.scv.annotation.WithDistributedLock;
+import com.sparta.scv.board.dto.BoardRequest;
 import com.sparta.scv.board.entity.Board;
 import com.sparta.scv.board.repository.BoardRepository;
 import com.sparta.scv.user.entity.User;
 import lombok.RequiredArgsConstructor;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -17,6 +22,7 @@ public class BoardColumnService {
     private final BoardColumnRepository boardColumnRepository;
     private final BoardColumnRepositoryQueryImpl boardColumnRepositoryQuery;
     private final BoardRepository boardRepository;
+    private final RedissonClient redissonClient;
 
     public List<BoardColumnResponseDto> getColumns(BoardIdRequestDto requestDto) {
         return boardColumnRepository.findByBoardIdOrderByPositionAsc(requestDto.getBoardId())
@@ -36,12 +42,33 @@ public class BoardColumnService {
     }
 
     @Transactional
+    @WithDistributedLock(lockName = "#boardColumnId")
     public void updateColumnName(Long boardColumnId, NameUpdateDto requestDto) {
         BoardColumn boardColumn = findColumn(boardColumnId);
         boardColumn.updateName(requestDto.getBoardColumnName());
     }
 
     @Transactional
+    public void updateLockColumnTest(Long boardColumnId, String columnName, int i) {
+
+        BoardColumn boardColumn = findColumn(boardColumnId);
+
+        RLock lock = redissonClient.getFairLock("board:" + boardColumnId);
+        try {
+            lock.lock();
+            System.out.println(i + "번째 락 시작 boardId = " + boardColumnId);
+
+            boardColumn.updateName(columnName);
+        } finally {
+            System.out.println(i + "번째 락 종료 boardId = " + boardColumnId);
+            lock.unlock();
+        }
+    }
+
+
+
+    @Transactional
+    @WithDistributedLock(lockName = "#boardColumnId")
     public void updateColumnPosition(Long boardColumnId, PositionUpdateDto requestDto) {
         validatePosition(requestDto.getPosition());
 

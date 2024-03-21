@@ -17,6 +17,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import jakarta.persistence.Column;
@@ -25,6 +26,7 @@ import jakarta.persistence.Column;
 @Table(name = "cards")
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
 public class Card {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

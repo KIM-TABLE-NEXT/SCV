@@ -2,12 +2,8 @@ package com.sparta.scv.user.entity;
 
 import com.sparta.scv.user.dto.SignupDto;
 import com.sparta.scv.user.dto.UpdateRequestDto;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
@@ -18,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 @NoArgsConstructor
 @Getter
 @DynamicUpdate
+@AllArgsConstructor
 public class User {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,6 +41,14 @@ public class User {
     this.department = signupDto.getDepartment();
     this.nickname = signupDto.getNickname();
     this.password = signupDto.getPassword();
+  }
+
+  public User(String username, String company, String department, String nickname, String password) {
+    this.username = username;
+    this.company = company;
+    this.department = department;
+    this.nickname = nickname;
+    this.password = password;
   }
 
   public User(Long id) {
