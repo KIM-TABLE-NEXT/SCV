@@ -57,7 +57,6 @@ public class User {
     this.nickname = nickname;
     this.password = password;
   }
-
   public User(Long id) {
     this.id = id;
   }
