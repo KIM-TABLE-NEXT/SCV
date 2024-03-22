@@ -1,12 +1,8 @@
 package com.sparta.scv.board.service;
 
 import com.sparta.scv.board.dto.BoardRequest;
-import com.sparta.scv.board.repository.BoardRepository;
 import com.sparta.scv.user.entity.User;
 import com.sparta.scv.user.repository.UserRepository;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.stream.IntStream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,6 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 class BoardServiceTest {
+
     @Autowired
     private BoardService boardService;
 
@@ -23,7 +20,7 @@ class BoardServiceTest {
     private UserRepository userRepository;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         user = new User("surname", "surname", "surname", "surname", "surname");
         userRepository.save(user);
     }
@@ -31,8 +28,9 @@ class BoardServiceTest {
     private User user;
 
     @Test
-    public void updateBoardConcurrencyTest() throws InterruptedException {
-        BoardRequest initialRequest = new BoardRequest("Initial Name", "Initial Description", "Initial Color");
+    public void updateBoardConcurrencyTest() {
+        BoardRequest initialRequest = new BoardRequest("Initial Name", "Initial Description",
+            "Initial Color");
         Long boardId = boardService.createBoard(user, initialRequest);
 
         int numberOfThreads = 10;
@@ -40,7 +38,8 @@ class BoardServiceTest {
         // IntStream을 이용하여 병렬 처리
         IntStream.rangeClosed(1, numberOfThreads).parallel().forEach(i -> {
             // 각 쓰레드에서 사용할 요청 생성
-            BoardRequest updateRequest = new BoardRequest("Update Name " + i, "Update Description " + i, "Update Color " + i);
+            BoardRequest updateRequest = new BoardRequest("Update Name " + i,
+                "Update Description " + i, "Update Color " + i);
             System.out.println(i + "번째 쓰레드 접근 시작");
             boardService.updateRockBoardTest(boardId, updateRequest, user, i);
             System.out.println(i + "번째 쓰레드 접근 종료");
