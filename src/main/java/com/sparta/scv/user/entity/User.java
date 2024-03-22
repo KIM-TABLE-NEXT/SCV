@@ -41,7 +41,6 @@ public class User {
 
   @Column(nullable = false)
   private String company;
-
   public User(SignupDto signupDto){
     this.username = signupDto.getUsername();
     this.company = signupDto.getCompany();
@@ -57,11 +56,9 @@ public class User {
     this.nickname = nickname;
     this.password = password;
   }
-
   public User(Long id) {
     this.id = id;
   }
-
   @Transactional
   public void update(UpdateRequestDto dto){
     if(dto.getCompany() != null) this.company = dto.getCompany();

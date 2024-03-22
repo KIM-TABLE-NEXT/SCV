@@ -74,6 +74,8 @@ public class UserService {
       if(isLocked){
         try {
           User updateuser=userRepository.findById(user.getId()).orElseThrow(NoSuchElementException::new);
+          String newpass = passwordEncoder.encode(requestDto.getPassword());
+          requestDto.setPassword(newpass);
           updateuser.update(requestDto);
           returnlong = updateuser.getId();
         }
