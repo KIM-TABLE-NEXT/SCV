@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +29,7 @@ public class BoardService {
     private final RedissonClient redissonClient;
 
     @Transactional
+    @CacheEvict(value = "board", key = "#user.id", allEntries = true)
     public Long createBoard(User user, BoardRequest boardRequest) {
         Board board = createBoardEntity(user, boardRequest);
         saveBoardAndMember(board);
@@ -41,6 +43,7 @@ public class BoardService {
     }
 
     @Transactional
+    @CacheEvict(value = "board", key = "#user.id", allEntries = true)
     public Long updateBoard(Long boardId, BoardRequest boardRequest, User user) {
 
         Board board = getBoardById(boardId);
@@ -67,6 +70,7 @@ public class BoardService {
     }
 
     @Transactional
+    @CacheEvict(value = "board", key = "#user.id", allEntries = true)
     public void updateRockBoardTest(Long boardId, BoardRequest boardRequest, User user, int i) {
 
         Board board = getBoardById(boardId);
