@@ -7,6 +7,7 @@ import com.sparta.scv.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,7 +32,7 @@ public class BoardColumnService {
     }
 
     @Transactional
-//    @CachePut(value = "columns", key = "#requestDto.boardId", cacheManager = "cacheManager")
+    @CacheEvict(value = "columns", key = "#requestDto.boardId", allEntries = true)
     public Long createColumn(BoardColumnRequestDto requestDto) {
         validatePosition(requestDto.getPosition());
 
@@ -45,7 +46,7 @@ public class BoardColumnService {
 
     @Transactional
     @WithDistributedLock(lockName = "#boardColumnId")
-//    @CachePut(value = "BoardColumns", key = "#requestDto.boardId", cacheManager = "cacheManager")
+    @CacheEvict(value = "columns", key = "#requestDto.boardId", allEntries = true)
     public void updateColumnName(Long boardColumnId, NameUpdateDto requestDto) {
         BoardColumn boardColumn = findColumn(boardColumnId);
         boardColumn.updateName(requestDto.getBoardColumnName());
@@ -72,7 +73,7 @@ public class BoardColumnService {
 
     @Transactional
     @WithDistributedLock(lockName = "#boardColumnId")
-//    @CachePut(value = "BoardColumns", key = "#requestDto.boardId", cacheManager = "cacheManager")
+    @CacheEvict(value = "columns", key = "#requestDto.boardId", allEntries = true)
     public void updateColumnPosition(Long boardColumnId, PositionUpdateDto requestDto) {
         validatePosition(requestDto.getPosition());
 
@@ -83,7 +84,7 @@ public class BoardColumnService {
     }
 
     @Transactional
-//    @CacheEvict(value = "BoardColumns", key = "#boardId", cacheManager = "cacheManager")
+    @CacheEvict(value = "columns", key = "#boardId", allEntries = true)
     public void deleteColumn(Long boardId, Long boardColumnId, User user) {
         BoardColumn boardColumn = findColumn(boardColumnId);
         if (!Objects.equals(boardColumn.getBoard().getOwner().getId(), user.getId())) {
