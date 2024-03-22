@@ -1,5 +1,6 @@
 package com.sparta.scv.board.service;
 
+import com.sparta.scv.annotation.WithDistributedLock;
 import com.sparta.scv.board.dto.BoardDto;
 import com.sparta.scv.board.dto.BoardRequest;
 import com.sparta.scv.board.entity.Board;
@@ -42,6 +43,7 @@ public class BoardService {
     }
 
     @Transactional
+    @WithDistributedLock(lockName = "#boardId")
     @CacheEvict(value = "board", key = "#user.id", allEntries = true)
     public Long updateBoard(Long boardId, BoardRequest boardRequest, User user) {
 
@@ -84,7 +86,7 @@ public class BoardService {
 
     private void checkBoardStateIsTrue(Board board) {
         if (!board.isState()) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("The board has been deleted. Please contact the administrator");
         }
     }
 
