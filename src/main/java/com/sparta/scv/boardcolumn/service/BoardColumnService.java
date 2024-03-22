@@ -47,7 +47,7 @@ public class BoardColumnService {
 
         Board board = findBoard(requestDto.getBoardId());
 
-        Long position = calculatePosition(requestDto.getBoardId(), requestDto.getPosition());
+        Long position = calculatePosition(requestDto.getBoardId(), requestDto.getPosition(), 0);
         BoardColumn savedBoardColumn = boardColumnRepository.save(
             new BoardColumn(requestDto.getColumnName(), position, board));
 
@@ -88,7 +88,7 @@ public class BoardColumnService {
 
         BoardColumn boardColumn = findColumn(boardColumnId);
 
-        Long position = calculatePosition(boardColumn.getBoard().getId(), requestDto.getPosition());
+        Long position = calculatePosition(boardColumn.getBoard().getId(), requestDto.getPosition(), 1);
         boardColumn.updatePosition(position);
     }
 
@@ -119,16 +119,16 @@ public class BoardColumnService {
         }
     }
 
-    private Long calculatePosition(Long boardId, Long requestedPosition) {
+    private Long calculatePosition(Long boardId, Long requestedPosition, int index) {
         Long maxPosition = boardColumnRepository.findMaxPosition(boardId).orElse(0L) / 1024;
         if (requestedPosition > maxPosition + 1) { // 컬럼의 갯수보다 큰 포지션(순서)이 입력되었을 경우 값 조정
             requestedPosition = maxPosition + 2;
         }
 
         Long nextPosition = boardColumnRepositoryQuery.findColumnByPosition(boardId,
-            requestedPosition);
+            requestedPosition + index);
         Long previousPosition = (requestedPosition == 1) ? 0 : // 이전 포지션의 컬럼이 없다면 0으로 설정
-            boardColumnRepositoryQuery.findColumnByPosition(boardId, requestedPosition - 1);
+            boardColumnRepositoryQuery.findColumnByPosition(boardId, requestedPosition - 1 + index);
 
         if (nextPosition == 0) { // DB에 컬럼이 존재하지 않는 경우
             return (maxPosition + 1) * 1024;
