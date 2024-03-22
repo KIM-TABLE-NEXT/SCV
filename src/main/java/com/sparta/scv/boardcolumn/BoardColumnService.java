@@ -1,19 +1,18 @@
 package com.sparta.scv.boardcolumn;
 
 import com.sparta.scv.annotation.WithDistributedLock;
-import com.sparta.scv.board.dto.BoardRequest;
 import com.sparta.scv.board.entity.Board;
 import com.sparta.scv.board.repository.BoardRepository;
 import com.sparta.scv.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -24,12 +23,15 @@ public class BoardColumnService {
     private final BoardRepository boardRepository;
     private final RedissonClient redissonClient;
 
-    public List<BoardColumnResponseDto> getColumns(BoardIdRequestDto requestDto) {
-        return boardColumnRepository.findByBoardIdOrderByPositionAsc(requestDto.getBoardId())
+    @Cacheable(value = "columns", key = "#requestDto.boardId", cacheManager = "cacheManager")
+    public Columns getColumns(BoardIdRequestDto requestDto) {
+        List<BoardColumnResponseDto> boardColumns = boardColumnRepository.findByBoardIdOrderByPositionAsc(requestDto.getBoardId())
             .stream().map(BoardColumnResponseDto::new).toList();
+        return new Columns(boardColumns);
     }
 
     @Transactional
+//    @CachePut(value = "columns", key = "#requestDto.boardId", cacheManager = "cacheManager")
     public Long createColumn(BoardColumnRequestDto requestDto) {
         validatePosition(requestDto.getPosition());
 
@@ -43,6 +45,7 @@ public class BoardColumnService {
 
     @Transactional
     @WithDistributedLock(lockName = "#boardColumnId")
+//    @CachePut(value = "BoardColumns", key = "#requestDto.boardId", cacheManager = "cacheManager")
     public void updateColumnName(Long boardColumnId, NameUpdateDto requestDto) {
         BoardColumn boardColumn = findColumn(boardColumnId);
         boardColumn.updateName(requestDto.getBoardColumnName());
@@ -69,6 +72,7 @@ public class BoardColumnService {
 
     @Transactional
     @WithDistributedLock(lockName = "#boardColumnId")
+//    @CachePut(value = "BoardColumns", key = "#requestDto.boardId", cacheManager = "cacheManager")
     public void updateColumnPosition(Long boardColumnId, PositionUpdateDto requestDto) {
         validatePosition(requestDto.getPosition());
 
@@ -79,7 +83,8 @@ public class BoardColumnService {
     }
 
     @Transactional
-    public void deleteColumn(Long boardColumnId, User user) {
+//    @CacheEvict(value = "BoardColumns", key = "#boardId", cacheManager = "cacheManager")
+    public void deleteColumn(Long boardId, Long boardColumnId, User user) {
         BoardColumn boardColumn = findColumn(boardColumnId);
         if (!Objects.equals(boardColumn.getBoard().getOwner().getId(), user.getId())) {
             throw new IllegalArgumentException("컬럼의 삭제는 보드의 주인만 가능합니다.");
