@@ -41,7 +41,6 @@ public class User {
 
   @Column(nullable = false)
   private String company;
-
   public User(SignupDto signupDto){
     this.username = signupDto.getUsername();
     this.company = signupDto.getCompany();
