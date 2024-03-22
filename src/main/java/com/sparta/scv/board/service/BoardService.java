@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +35,7 @@ public class BoardService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "board", key = "#user.id", cacheManager = "cacheManager", unless = "#result == null")
     public List<BoardDto> getBoards(User user) {
         return boardRepository.getBoards(user);
     }

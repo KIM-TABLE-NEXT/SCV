@@ -2,48 +2,51 @@ package com.sparta.scv.board.service;
 
 import com.sparta.scv.board.dto.BoardRequest;
 import com.sparta.scv.user.entity.User;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import com.sparta.scv.user.repository.UserRepository;
+import java.util.stream.IntStream;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 class BoardServiceTest {
+
     @Autowired
     private BoardService boardService;
 
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @BeforeEach
+    void setUp() {
+        user = new User("surname", "surname", "surname", "surname", "surname");
+        userRepository.save(user);
+    }
+
+    private User user;
+
     @Test
-    public void updateBoardConcurrencyTest() throws InterruptedException {
-        User user = new User(1L); // 사용자 생성 로직 가정
-        BoardRequest initialRequest = new BoardRequest("Initial Name", "Initial Description", "Initial Color");
+    public void updateBoardConcurrencyTest() {
+        BoardRequest initialRequest = new BoardRequest("Initial Name", "Initial Description",
+            "Initial Color");
         Long boardId = boardService.createBoard(user, initialRequest);
 
         int numberOfThreads = 10;
-        // 쓰레드 생성
-        ExecutorService executorService = Executors.newFixedThreadPool(numberOfThreads);
-        // 주어진 수 만큼 이벤트를 기다림
-        CountDownLatch latch = new CountDownLatch(numberOfThreads);
 
-        for (int i = 1; i <= numberOfThreads; i++) {
+        // IntStream을 이용하여 병렬 처리
+        IntStream.rangeClosed(1, numberOfThreads).parallel().forEach(i -> {
             // 각 쓰레드에서 사용할 요청 생성
-            BoardRequest updateRequest = new BoardRequest("Update Name " + i, "Update Description " + i, "Update Color " + i);
+            BoardRequest updateRequest = new BoardRequest("Update Name " + i,
+                "Update Description " + i, "Update Color " + i);
+            System.out.println(i + "번째 쓰레드 접근 시작");
+            boardService.updateRockBoardTest(boardId, updateRequest, user, i);
+            System.out.println(i + "번째 쓰레드 접근 종료");
+        });
 
-            int finalI = i;
-            executorService.submit(() -> {
-                try {
-                    System.out.println(finalI + "번째 쓰레드 접근 시작");
-                    boardService.updateRockBoardTest(boardId, updateRequest, user, finalI);
-                } finally {
-                    latch.countDown();
-                    System.out.println(finalI + "번째 쓰레드 접근 종료");
-                }
-            });
-        }
-
-        latch.await(); // 모든 쓰레드의 작업이 완료될 때까지 대기
-        executorService.shutdown();
+        // 병렬 스트림은 내부적으로 ForkJoinPool을 사용하여 작업을 처리하므로,
+        // 모든 작업이 완료될 때까지 기다리는 별도의 명시적 대기 로직이 필요하지 않습니다.
     }
 
 
