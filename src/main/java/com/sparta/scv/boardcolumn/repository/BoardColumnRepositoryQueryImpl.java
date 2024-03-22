@@ -1,6 +1,6 @@
 package com.sparta.scv.boardcolumn.repository;
 
-import static com.sparta.scv.boardcolumn.QBoardColumn.boardColumn;
+import static com.sparta.scv.boardcolumn.entity.QBoardColumn.boardColumn;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sparta.scv.boardcolumn.entity.BoardColumn;
