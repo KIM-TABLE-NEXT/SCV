@@ -14,6 +14,8 @@ import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -60,8 +62,10 @@ public class UserService {
     jwtUtil.addJwtToHeader(token,httpServletResponse);
     return jwtUtil.giveUserId(token);
   }
-  //
+
+  // 사실 회원 정보 수정에 캐싱 이나 동시 접근을 할필요가 없지만 공부 해볼겸 해봤습니다.
   @Transactional
+  @CachePut(value = "User", key = "#user.getId", cacheManager = "cacheManager")
   public Long update(UpdateRequestDto requestDto, User user) {
     RLock lock = redissonClient.getFairLock(LOCK_KEY);
     Long returnlong = 404L;
@@ -82,7 +86,9 @@ public class UserService {
     }
     return returnlong;
   }
+
   @Transactional
+  @CacheEvict(value = "User", key = "#user.getId", cacheManager = "cacheManager")
   public Long delete(User user) throws NoSuchElementException {
     try {
       userRepository.delete(user);

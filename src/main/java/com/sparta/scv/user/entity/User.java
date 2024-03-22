@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
+import org.springframework.data.redis.core.RedisHash;
 import org.springframework.transaction.annotation.Transactional;
 
 @Entity
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Getter
 @DynamicUpdate
 @AllArgsConstructor
+
 public class User {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
