@@ -9,6 +9,8 @@ import com.sparta.scv.boardcolumn.dto.PositionUpdateDto;
 import com.sparta.scv.boardcolumn.dto.ResultResponseDto;
 import com.sparta.scv.boardcolumn.service.BoardColumnService;
 import com.sparta.scv.global.impl.UserDetailsImpl;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -23,17 +25,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1")
+@RequestMapping("/v1/boardcolumns")
+@Tag(name = "Column 관리", description = "Column 관리에 관련된 API")
 public class BoardColumnController {
 
     private final BoardColumnService boardColumnService;
 
     @BoardMemberOnly
-    @GetMapping("/boardcolumns")
+    @GetMapping
+    @Operation(summary = "컬럼 조회", description = "보드 내부의 모든 컬럼을 조회합니다.")
     public ResponseEntity<Columns> getColumns(@RequestBody BoardIdRequestDto requestDto) {
-//        List<BoardColumnResponseDto> responseDtoList = boardColumnService.getColumns(requestDto);
         Columns columns = boardColumnService.getColumns(requestDto);
-//        return ResponseEntity.status(200).body(responseDtoList);
         return ResponseEntity.status(200).body(columns);
     }
 
@@ -47,7 +49,8 @@ public class BoardColumnController {
     }
 
     @BoardMemberOnly
-    @PutMapping("/boardcolumns/update-name/{boardcolumnId}")
+    @PutMapping("/update-name/{boardcolumnId}")
+    @Operation(summary = "컬럼 이름 수정", description = "컬럼의 이름을 수정합니다.")
     public ResponseEntity<ResultResponseDto> updateColumnName(@RequestBody NameUpdateDto requestDto,
         @PathVariable Long boardcolumnId) {
         boardColumnService.updateColumnName(boardcolumnId, requestDto);
@@ -65,7 +68,8 @@ public class BoardColumnController {
     }
 
     @BoardMemberOnly
-    @DeleteMapping("/boardcolumns/{boardcolumnId}")
+    @DeleteMapping("/{boardcolumnId}")
+    @Operation(summary = "컬럼 삭제", description = "컬럼을 삭제합니다.")
     public ResponseEntity<ResultResponseDto> deleteColumn(@RequestBody BoardIdRequestDto requestDto,
         @PathVariable Long boardcolumnId,
         @AuthenticationPrincipal UserDetailsImpl userDetails) {
