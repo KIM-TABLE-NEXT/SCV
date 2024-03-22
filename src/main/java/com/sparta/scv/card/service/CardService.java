@@ -24,8 +24,6 @@ public class CardService {
     private final BoardColumnRepository boardColumnRepository;
     private final UserRepository userRepository;
 
-    private final RedissonClient redissonClient;
-
     @Transactional
     public CardStatusResponse createCard(CardRequest cardRequest, User user) {
         BoardColumn boardColumn = getColumnById(cardRequest.getColumnId());
