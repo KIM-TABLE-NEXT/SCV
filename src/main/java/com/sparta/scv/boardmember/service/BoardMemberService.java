@@ -68,6 +68,7 @@ public class BoardMemberService {
         User deletedUser = new User(boardMemberRequest.getUserId());
 
         validateDeletePermission(board, boardMemberRequest.getUserId(), user);
+        existsBoardMemberByUserAndBoard(deletedUser, board);
         boardMemberRepository.deleteByUserAndBoard(deletedUser, board);
 
         return deletedUser.getId();
