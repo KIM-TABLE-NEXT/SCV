@@ -8,11 +8,13 @@ import com.sparta.scv.boardmember.entity.BoardMember;
 import com.sparta.scv.boardmember.repository.BoardMemberRepository;
 import com.sparta.scv.user.entity.User;
 import com.sparta.scv.user.repository.UserRepository;
-import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +24,7 @@ public class BoardMemberService {
     private final BoardRepository boardRepository;
     private final BoardMemberRepository boardMemberRepository;
 
+    @CacheEvict(value = "boardMembers", allEntries = true)
     public Long addBoardMember(BoardMemberRequest boardMemberRequest, User user) {
         Board board = new Board(boardMemberRequest.getBoardId());
         User invitedUser = new User(boardMemberRequest.getUserId());
@@ -36,7 +39,7 @@ public class BoardMemberService {
     }
 
 
-
+    @CacheEvict(value = "boardMembers", allEntries = true)
     public String addBoardMembers(Long boardId, User user, BoardMembersRequest boardMembersRequest) {
         Board board = new Board(boardId);
 
@@ -59,6 +62,7 @@ public class BoardMemberService {
 
 
     @Transactional
+    @CacheEvict(value = "boardMembers", allEntries = true)
     public Long deleteBoardMember(BoardMemberRequest boardMemberRequest, User user) {
         Board board = getBoardById(boardMemberRequest);
         User deletedUser = new User(boardMemberRequest.getUserId());
