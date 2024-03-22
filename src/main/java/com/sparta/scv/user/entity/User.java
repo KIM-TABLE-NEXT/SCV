@@ -60,7 +60,6 @@ public class User {
   public User(Long id) {
     this.id = id;
   }
-
   @Transactional
   public void update(UpdateRequestDto dto){
     if(dto.getCompany() != null) this.company = dto.getCompany();
