@@ -21,6 +21,14 @@ public class BoardColumnRepositoryQueryImpl {
         this.qf = new JPAQueryFactory(em);
     }
 
+    public Long findQuantityByBoardId(Long boardId) {
+        return qf
+            .select(boardColumn.count())
+            .from(boardColumn)
+            .where(boardColumn.board.id.eq(boardId))
+            .fetchOne();
+    }
+
     public BoardColumn findColumnById(Long boardColumnId) {
         return qf
             .selectFrom(boardColumn)
