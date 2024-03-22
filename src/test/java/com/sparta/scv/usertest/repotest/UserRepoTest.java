@@ -15,17 +15,13 @@ import org.junit.jupiter.api.Test;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
-@TestPropertySource(locations = "classpath:application-test.properties")
+@TestPropertySource(locations = "classpath:application.yml")
 public class UserRepoTest {
   @Autowired
   UserRepository userRepository;
@@ -56,12 +52,23 @@ public class UserRepoTest {
   @DisplayName("유저 정보 변경")
   @Transactional
   void updateUser(){
-    UpdateRequestDto userdto = new UpdateRequestDto();
-    userdto.setPassword("testuser_update");
-    userdto.setCompany("testuser_update");
-    userdto.setDepartment("testuser_update");
-    userdto.setNickname("testuser_update");
-    UserNamePassword ans = userRepository.findByUsername("testuser");
+
+    SignupDto userdtod = new SignupDto();
+    userdtod.setUsername("testuser22");
+    userdtod.setPassword("testusers2");
+    userdtod.setCompany("testuser2s");
+    userdtod.setDepartment("testusers");
+    userdtod.setNickname("testuser22");
+    User saveuser = new User(userdtod);
+    userRepository.save(saveuser);
+
+    ///
+    UpdateRequestDto userdtos = new UpdateRequestDto();
+    userdtos.setPassword("testuser_update");
+    userdtos.setCompany("testuser_update");
+    userdtos.setDepartment("testuser_update");
+    userdtos.setNickname("testuser_update");
+    UserNamePassword ans = userRepository.findByUsername("testuser22");
 
     User user = userRepository.findByid(ans.getId()).orElseThrow(NoSuchElementException::new);
     RLock lock = redissonClient.getFairLock(LOCK_KEY);
@@ -70,7 +77,7 @@ public class UserRepoTest {
       if(isLocked){
         try {
           User updateuser=userRepository.findById(user.getId()).orElseThrow(NoSuchElementException::new);
-          updateuser.update(userdto);
+          updateuser.update(userdtos);
         }
         finally {
           lock.unlock();

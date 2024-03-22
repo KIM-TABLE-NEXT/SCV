@@ -48,12 +48,25 @@ public class BoardColumnService {
     @WithDistributedLock(lockName = "#boardColumnId")
     @CacheEvict(value = "columns", key = "#requestDto.boardId", allEntries = true)
     public void updateColumnName(Long boardColumnId, NameUpdateDto requestDto) {
-        BoardColumn boardColumn = findColumn(boardColumnId);
-        boardColumn.updateName(requestDto.getBoardColumnName());
+        String lockKey = "Column" + boardColumnId;
+        RLock lock = redissonClient.getFairLock(lockKey);
+        try {
+            boolean isLocked = lock.tryLock(10, 60, TimeUnit.SECONDS);
+            if (isLocked) {
+                try {
+                    BoardColumn boardColumn = findColumn(boardColumnId);
+                    boardColumn.updateName(requestDto.getBoardColumnName());
+                } finally {
+                    lock.unlock();
+                }
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     @Transactional
-    public void updateLockColumnTest(Long boardColumnId, String columnName, int i) {
+    public void updateRockColumnTest(Long boardColumnId, String columnName, int i) {
 
         BoardColumn boardColumn = findColumn(boardColumnId);
 
@@ -75,12 +88,25 @@ public class BoardColumnService {
     @WithDistributedLock(lockName = "#boardColumnId")
     @CacheEvict(value = "columns", key = "#requestDto.boardId", allEntries = true)
     public void updateColumnPosition(Long boardColumnId, PositionUpdateDto requestDto) {
-        validatePosition(requestDto.getPosition());
+        String lockKey = "Column" + boardColumnId;
+        RLock lock = redissonClient.getFairLock(lockKey);
+        try {
+            boolean isLocked = lock.tryLock(10, 60, TimeUnit.SECONDS);
+            if (isLocked) {
+                try {
+                    validatePosition(requestDto.getPosition());
 
-        BoardColumn boardColumn = findColumn(boardColumnId);
+                    BoardColumn boardColumn = findColumn(boardColumnId);
 
-        Long position = calculatePosition(boardColumn.getBoard().getId(), requestDto.getPosition());
-        boardColumn.updatePosition(position);
+                    Long position = calculatePosition(boardColumn.getBoard().getId(), requestDto.getPosition());
+                    boardColumn.updatePosition(position);
+                } finally {
+                    lock.unlock();
+                }
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     @Transactional
