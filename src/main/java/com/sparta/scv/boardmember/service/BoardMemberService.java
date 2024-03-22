@@ -54,10 +54,9 @@ public class BoardMemberService {
             .map(u -> new BoardMember(u, board))
             .collect(Collectors.toList());
 
-        // 보드 멤버를 저장합니다.
         boardMemberRepository.saveAll(boardMemberList);
 
-        return "success";
+        return "Adding multiple members was successful.";
     }
 
 
@@ -76,7 +75,7 @@ public class BoardMemberService {
 
     private Board getBoardById(BoardMemberRequest boardMemberRequest) {
         return boardRepository.findById(boardMemberRequest.getBoardId()).orElseThrow(
-            IllegalArgumentException::new
+            () -> new IllegalArgumentException("Board not found")
         );
     }
 
