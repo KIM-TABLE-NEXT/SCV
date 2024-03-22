@@ -31,7 +31,7 @@ public class BoardMemberController {
         @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
         return ResponseEntity
-            .status(200)
+            .status(201)
             .body(boardMemberService.addBoardMember(boardMemberRequest, userDetails.getUser()));
     }
 
