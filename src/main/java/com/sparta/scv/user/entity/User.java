@@ -50,6 +50,14 @@ public class User {
     this.password = signupDto.getPassword();
   }
 
+  public User(String username, String company, String department, String nickname, String password) {
+    this.username = username;
+    this.company = company;
+    this.department = department;
+    this.nickname = nickname;
+    this.password = password;
+  }
+
   public User(Long id) {
     this.id = id;
   }
