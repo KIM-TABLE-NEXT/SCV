@@ -1,19 +1,19 @@
 package com.sparta.scv.boardcolumn;
 
 import com.sparta.scv.annotation.WithDistributedLock;
-import com.sparta.scv.board.dto.BoardRequest;
 import com.sparta.scv.board.entity.Board;
 import com.sparta.scv.board.repository.BoardRepository;
 import com.sparta.scv.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -24,12 +24,15 @@ public class BoardColumnService {
     private final BoardRepository boardRepository;
     private final RedissonClient redissonClient;
 
-    public List<BoardColumnResponseDto> getColumns(BoardIdRequestDto requestDto) {
-        return boardColumnRepository.findByBoardIdOrderByPositionAsc(requestDto.getBoardId())
+    @Cacheable(value = "columns", key = "#requestDto.boardId", cacheManager = "cacheManager")
+    public Columns getColumns(BoardIdRequestDto requestDto) {
+        List<BoardColumnResponseDto> boardColumns = boardColumnRepository.findByBoardIdOrderByPositionAsc(requestDto.getBoardId())
             .stream().map(BoardColumnResponseDto::new).toList();
+        return new Columns(boardColumns);
     }
 
     @Transactional
+    @CacheEvict(value = "columns", key = "#requestDto.boardId", allEntries = true)
     public Long createColumn(BoardColumnRequestDto requestDto) {
         validatePosition(requestDto.getPosition());
 
@@ -43,13 +46,27 @@ public class BoardColumnService {
 
     @Transactional
     @WithDistributedLock(lockName = "#boardColumnId")
+    @CacheEvict(value = "columns", key = "#requestDto.boardId", allEntries = true)
     public void updateColumnName(Long boardColumnId, NameUpdateDto requestDto) {
-        BoardColumn boardColumn = findColumn(boardColumnId);
-        boardColumn.updateName(requestDto.getBoardColumnName());
+        String lockKey = "Column" + boardColumnId;
+        RLock lock = redissonClient.getFairLock(lockKey);
+        try {
+            boolean isLocked = lock.tryLock(10, 60, TimeUnit.SECONDS);
+            if (isLocked) {
+                try {
+                    BoardColumn boardColumn = findColumn(boardColumnId);
+                    boardColumn.updateName(requestDto.getBoardColumnName());
+                } finally {
+                    lock.unlock();
+                }
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     @Transactional
-    public void updateLockColumnTest(Long boardColumnId, String columnName, int i) {
+    public void updateRockColumnTest(Long boardColumnId, String columnName, int i) {
 
         BoardColumn boardColumn = findColumn(boardColumnId);
 
@@ -69,17 +86,32 @@ public class BoardColumnService {
 
     @Transactional
     @WithDistributedLock(lockName = "#boardColumnId")
+    @CacheEvict(value = "columns", key = "#requestDto.boardId", allEntries = true)
     public void updateColumnPosition(Long boardColumnId, PositionUpdateDto requestDto) {
-        validatePosition(requestDto.getPosition());
+        String lockKey = "Column" + boardColumnId;
+        RLock lock = redissonClient.getFairLock(lockKey);
+        try {
+            boolean isLocked = lock.tryLock(10, 60, TimeUnit.SECONDS);
+            if (isLocked) {
+                try {
+                    validatePosition(requestDto.getPosition());
 
-        BoardColumn boardColumn = findColumn(boardColumnId);
+                    BoardColumn boardColumn = findColumn(boardColumnId);
 
-        Long position = calculatePosition(boardColumn.getBoard().getId(), requestDto.getPosition());
-        boardColumn.updatePosition(position);
+                    Long position = calculatePosition(boardColumn.getBoard().getId(), requestDto.getPosition());
+                    boardColumn.updatePosition(position);
+                } finally {
+                    lock.unlock();
+                }
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     @Transactional
-    public void deleteColumn(Long boardColumnId, User user) {
+    @CacheEvict(value = "columns", key = "#boardId", allEntries = true)
+    public void deleteColumn(Long boardId, Long boardColumnId, User user) {
         BoardColumn boardColumn = findColumn(boardColumnId);
         if (!Objects.equals(boardColumn.getBoard().getOwner().getId(), user.getId())) {
             throw new IllegalArgumentException("컬럼의 삭제는 보드의 주인만 가능합니다.");
@@ -105,19 +137,19 @@ public class BoardColumnService {
 
     private Long calculatePosition(Long boardId, Long requestedPosition) {
         Long maxPosition = boardColumnRepository.findMaxPosition(boardId).orElse(0L) / 1024;
-        if (requestedPosition > maxPosition + 1) {
+        if (requestedPosition > maxPosition + 1) { // 컬럼의 갯수보다 큰 포지션(순서)이 입력되었을 경우 값 조정
             requestedPosition = maxPosition + 2;
         }
 
         Long nextPosition = boardColumnRepositoryQuery.findColumnByPosition(boardId, requestedPosition);
-        Long previousPosition = (requestedPosition == 1) ? 0 :
+        Long previousPosition = (requestedPosition == 1) ? 0 : // 이전 포지션의 컬럼이 없다면 0으로 설정
             boardColumnRepositoryQuery.findColumnByPosition(boardId, requestedPosition - 1);
 
-        if (nextPosition == 0) {
+        if (nextPosition == 0) { // DB에 컬럼이 존재하지 않는 경우
             return (maxPosition + 1) * 1024;
-        } else if (previousPosition == 0) {
+        } else if (previousPosition == 0) { // 이전 순서의 컬럼이 존재하지 않는 경우 (입력된 순서가 1)
             return nextPosition / 2;
-        } else {
+        } else { // 두 포지션의 중간값 계산
             return (nextPosition + previousPosition) / 2;
         }
     }

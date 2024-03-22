@@ -17,50 +17,53 @@ import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSeriali
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
+import java.time.Duration;
+
 @EnableRedisRepositories // redis 활성화
 @EnableCaching
 @Configuration
 public class RedisConfig {
 
-  @Value("${spring.data.redis.host}")
-  private String host;
 
-  @Value("${spring.data.redis.port}")
-  private int port;
+    @Value("${spring.data.redis.host}")
+    private String host;
 
-  // 연결정보
-  @Bean
-  public RedisConnectionFactory redisConnectionFactory() {
-    RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration();
-    redisStandaloneConfiguration.setHostName(host);
-    redisStandaloneConfiguration.setPort(port);
-    return new LettuceConnectionFactory(redisStandaloneConfiguration);
-  }
+    @Value("${spring.data.redis.port}")
+    private int port;
 
-  // 직렬화 / 역직렬화
-  @Bean
-  public RedisTemplate<String, Object> redisTemplate() {
-    RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
-    redisTemplate.setConnectionFactory(redisConnectionFactory());
-    redisTemplate.setKeySerializer(new StringRedisSerializer());
-    redisTemplate.setValueSerializer(new StringRedisSerializer());
-    return redisTemplate;
-  }
+    // 연결정보
+    @Bean
+    public RedisConnectionFactory redisConnectionFactory() {
+        RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration();
+        redisStandaloneConfiguration.setHostName(host);
+        redisStandaloneConfiguration.setPort(port);
+        return new LettuceConnectionFactory(redisStandaloneConfiguration);
+    }
 
-  // 캐시 매니저
-  @Bean
-  public CacheManager cacheManager() {
-    RedisCacheManager.RedisCacheManagerBuilder builder =
-        RedisCacheManager.RedisCacheManagerBuilder.fromConnectionFactory(redisConnectionFactory());
+    // 직렬화 / 역직렬화
+    @Bean
+    public RedisTemplate<String, Object> redisTemplate() {
+        RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
+        redisTemplate.setConnectionFactory(redisConnectionFactory());
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
+        redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer());
+        return redisTemplate;
+    }
 
-    RedisCacheConfiguration configuration = RedisCacheConfiguration.defaultCacheConfig()
-        .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer())) // Value Serializer 변경
-        .disableCachingNullValues()
-        .entryTtl(Duration.ofMinutes(10L));
+    // 캐시 매니저
+    @Bean
+    public CacheManager cacheManager() {
+        RedisCacheManager.RedisCacheManagerBuilder builder =
+            RedisCacheManager.RedisCacheManagerBuilder.fromConnectionFactory(redisConnectionFactory());
 
-    builder.cacheDefaults(configuration);
+        RedisCacheConfiguration configuration = RedisCacheConfiguration.defaultCacheConfig()
+            .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer())) // Value Serializer 변경
+            .disableCachingNullValues()
+            .entryTtl(Duration.ofMinutes(10L));
 
-    return builder.build();
-  }
+        builder.cacheDefaults(configuration);
+
+        return builder.build();
+    }
 
 }
