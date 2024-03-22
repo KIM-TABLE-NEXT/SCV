@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
-public class BoardRepositoryQueryImpl implements BoardRepositoryQuery{
+public class BoardRepositoryQueryImpl implements BoardRepositoryQuery {
 
     private final JPAQueryFactory queryFactory;
 

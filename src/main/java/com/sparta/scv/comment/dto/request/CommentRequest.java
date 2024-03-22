@@ -1,10 +1,11 @@
 package com.sparta.scv.comment.dto.request;
 
-import com.sparta.scv.board.BoardIdHolder;
+import com.sparta.scv.aop.BoardIdHolder;
 import lombok.Getter;
 
 @Getter
 public class CommentRequest implements BoardIdHolder {
+
     private Long boardId;
     private String content;
     private Long cardId;

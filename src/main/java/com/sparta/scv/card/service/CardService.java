@@ -1,7 +1,8 @@
 package com.sparta.scv.card.service;
 
-import com.sparta.scv.boardcolumn.BoardColumn;
-import com.sparta.scv.boardcolumn.BoardColumnRepository;
+import com.sparta.scv.annotation.WithDistributedLock;
+import com.sparta.scv.boardcolumn.entity.BoardColumn;
+import com.sparta.scv.boardcolumn.repository.BoardColumnRepository;
 import com.sparta.scv.card.dto.request.CardRequest;
 import com.sparta.scv.card.dto.request.CardUpdateRequest;
 import com.sparta.scv.card.dto.response.CardResponse;
@@ -11,13 +12,8 @@ import com.sparta.scv.card.repository.CardRepository;
 import com.sparta.scv.user.entity.User;
 import com.sparta.scv.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
-import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
-import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -39,43 +35,31 @@ public class CardService {
         return new CardStatusResponse(201, "CREATED", card.getId());
     }
 
-    public CardResponse getCard(Long cardId){
+    public CardResponse getCard(Long cardId) {
         Card card = getCardById(cardId);
         return new CardResponse(card);
     }
 
     @Transactional
-    public CardStatusResponse updateCard(Long cardId, CardUpdateRequest cardUpdateRequest, User user) {
+    @WithDistributedLock(lockName = "#cardId")
+    public CardStatusResponse updateCard(Long cardId, CardUpdateRequest cardUpdateRequest,
+        User user) {
         Card card = getCardById(cardId);
 
-        if(!user.getId().equals(card.getOwner().getId()))
+        if (!user.getId().equals(card.getOwner().getId())) {
             throw new IllegalArgumentException("해당 카드를 수정할 권한이 없습니다.");
-
-        RLock lock = redissonClient.getFairLock("card:" + cardId);
-        try{
-            if(lock.tryLock(10, 60, TimeUnit.SECONDS)){
-                try{
-                    card.update(cardUpdateRequest);
-                } finally {
-                    lock.unlock();
-                }
-            }
-            else{
-                throw new IllegalArgumentException("다른 유저가 이미 수정중입니다.");
-            }
-        } catch (InterruptedException e){
-            Thread.currentThread().interrupt();
         }
 
-
+        card.update(cardUpdateRequest);
         return new CardStatusResponse(201, "OK", card.getId());
     }
 
     @Transactional
     public CardStatusResponse deleteCard(Long cardId, User user) {
         Card card = getCardById(cardId);
-        if(!user.getId().equals(card.getOwner().getId()))
+        if (!user.getId().equals(card.getOwner().getId())) {
             throw new IllegalArgumentException("해당 카드를 삭제할 권한이 없습니다.");
+        }
         cardRepository.deleteById(card.getId());
         return new CardStatusResponse(200, "OK", card.getId());
     }
@@ -85,27 +69,28 @@ public class CardService {
         Card card = getCardById(cardId);
         BoardColumn boardColumn = getColumnById(boardcolumnId);
 
-        if(!user.getId().equals(card.getOwner().getId()))
+        if (!user.getId().equals(card.getOwner().getId())) {
             throw new IllegalArgumentException("해당 카드를 수정할 권한이 없습니다.");
+        }
         card.move(boardColumn);
         return new CardStatusResponse(201, "OK", card.getId());
     }
 
-    private BoardColumn getColumnById(Long columnId){
+    private BoardColumn getColumnById(Long columnId) {
         return boardColumnRepository.findById(columnId).orElseThrow(
-            ()-> new NullPointerException("해당 Column이 존재하지 않습니다.")
+            () -> new NullPointerException("해당 Column이 존재하지 않습니다.")
         );
     }
 
-    private Card getCardById(Long cardId){
+    private Card getCardById(Long cardId) {
         return cardRepository.findById(cardId).orElseThrow(
-            ()-> new NullPointerException("해당 카드가 존재하지 않습니다.")
+            () -> new NullPointerException("해당 카드가 존재하지 않습니다.")
         );
     }
 
-    private User getUserById(Long userId){
+    private User getUserById(Long userId) {
         return userRepository.findById(userId).orElseThrow(
-            ()-> new NullPointerException("해당 유저가 존재하지 않습니다.")
+            () -> new NullPointerException("해당 유저가 존재하지 않습니다.")
         );
     }
 

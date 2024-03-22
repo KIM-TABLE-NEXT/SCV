@@ -8,13 +8,12 @@ import com.sparta.scv.boardmember.entity.BoardMember;
 import com.sparta.scv.boardmember.repository.BoardMemberRepository;
 import com.sparta.scv.user.entity.User;
 import com.sparta.scv.user.repository.UserRepository;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -40,7 +39,8 @@ public class BoardMemberService {
 
 
     @CacheEvict(value = "boardMembers", allEntries = true)
-    public String addBoardMembers(Long boardId, User user, BoardMembersRequest boardMembersRequest) {
+    public String addBoardMembers(Long boardId, User user,
+        BoardMembersRequest boardMembersRequest) {
         Board board = new Board(boardId);
 
         existsBoardById(boardId);
@@ -87,7 +87,7 @@ public class BoardMemberService {
     }
 
     private void existsBoardById(Long boardId) {
-        if(!boardRepository.existsById(boardId)) {
+        if (!boardRepository.existsById(boardId)) {
             throw new IllegalArgumentException("Board not found");
         }
     }

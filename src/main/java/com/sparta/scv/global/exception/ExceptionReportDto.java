@@ -4,6 +4,7 @@ import lombok.Getter;
 
 @Getter
 public class ExceptionReportDto {
+
     private String message;
     private int statusCode;
 

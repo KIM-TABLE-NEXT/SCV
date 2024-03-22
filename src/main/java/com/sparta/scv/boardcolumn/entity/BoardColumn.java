@@ -1,4 +1,4 @@
-package com.sparta.scv.boardcolumn;
+package com.sparta.scv.boardcolumn.entity;
 
 import com.sparta.scv.board.entity.Board;
 import jakarta.persistence.Column;
@@ -22,6 +22,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class BoardColumn {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

@@ -6,8 +6,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UpdateRequestDto {
-  private String password;
-  private String nickname;
-  private String department;
-  private String company;
+
+    private String password;
+    private String nickname;
+    private String department;
+    private String company;
 }

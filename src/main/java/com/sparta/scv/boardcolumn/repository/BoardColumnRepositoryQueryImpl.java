@@ -1,11 +1,12 @@
-package com.sparta.scv.boardcolumn;
+package com.sparta.scv.boardcolumn.repository;
+
+import static com.sparta.scv.boardcolumn.QBoardColumn.boardColumn;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.sparta.scv.boardcolumn.entity.BoardColumn;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
-
-import static com.sparta.scv.boardcolumn.QBoardColumn.boardColumn;
 
 
 @Repository

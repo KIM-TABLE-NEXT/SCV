@@ -2,14 +2,17 @@ package com.sparta.scv.boardcolumn;
 
 import com.sparta.scv.board.entity.Board;
 import com.sparta.scv.board.repository.BoardRepository;
+import com.sparta.scv.boardcolumn.dto.NameUpdateDto;
+import com.sparta.scv.boardcolumn.entity.BoardColumn;
+import com.sparta.scv.boardcolumn.repository.BoardColumnRepository;
+import com.sparta.scv.boardcolumn.service.BoardColumnService;
 import com.sparta.scv.user.entity.User;
 import com.sparta.scv.user.repository.UserRepository;
+import java.util.stream.IntStream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.util.stream.IntStream;
 
 @SpringBootTest
 class BoardColumnServiceTest {

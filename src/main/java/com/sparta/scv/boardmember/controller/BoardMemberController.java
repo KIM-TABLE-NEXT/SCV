@@ -1,8 +1,8 @@
 package com.sparta.scv.boardmember.controller;
 
 import com.sparta.scv.boardmember.dto.BoardMemberRequest;
-import com.sparta.scv.boardmember.service.BoardMemberService;
 import com.sparta.scv.boardmember.dto.BoardMembersRequest;
+import com.sparta.scv.boardmember.service.BoardMemberService;
 import com.sparta.scv.global.impl.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -41,10 +41,11 @@ public class BoardMemberController {
         @PathVariable Long boardId,
         @RequestBody BoardMembersRequest boardMembersRequest,
         @AuthenticationPrincipal UserDetailsImpl userDetails
-    ){
+    ) {
         return ResponseEntity
-            .status(200)
-            .body(boardMemberService.addBoardMembers(boardId, userDetails.getUser(), boardMembersRequest));
+            .status(201)
+            .body(boardMemberService.addBoardMembers(boardId, userDetails.getUser(),
+                boardMembersRequest));
     }
 
 

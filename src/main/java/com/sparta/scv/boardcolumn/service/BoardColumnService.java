@@ -1,9 +1,20 @@
-package com.sparta.scv.boardcolumn;
+package com.sparta.scv.boardcolumn.service;
 
 import com.sparta.scv.annotation.WithDistributedLock;
 import com.sparta.scv.board.entity.Board;
 import com.sparta.scv.board.repository.BoardRepository;
+import com.sparta.scv.boardcolumn.dto.BoardColumnRequestDto;
+import com.sparta.scv.boardcolumn.dto.BoardColumnResponseDto;
+import com.sparta.scv.boardcolumn.dto.BoardIdRequestDto;
+import com.sparta.scv.boardcolumn.dto.Columns;
+import com.sparta.scv.boardcolumn.dto.NameUpdateDto;
+import com.sparta.scv.boardcolumn.dto.PositionUpdateDto;
+import com.sparta.scv.boardcolumn.entity.BoardColumn;
+import com.sparta.scv.boardcolumn.repository.BoardColumnRepository;
+import com.sparta.scv.boardcolumn.repository.BoardColumnRepositoryQueryImpl;
 import com.sparta.scv.user.entity.User;
+import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
@@ -11,9 +22,6 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -26,7 +34,8 @@ public class BoardColumnService {
 
     @Cacheable(value = "columns", key = "#requestDto.boardId", cacheManager = "cacheManager")
     public Columns getColumns(BoardIdRequestDto requestDto) {
-        List<BoardColumnResponseDto> boardColumns = boardColumnRepository.findByBoardIdOrderByPositionAsc(requestDto.getBoardId())
+        List<BoardColumnResponseDto> boardColumns = boardColumnRepository.findByBoardIdOrderByPositionAsc(
+                requestDto.getBoardId())
             .stream().map(BoardColumnResponseDto::new).toList();
         return new Columns(boardColumns);
     }
@@ -39,7 +48,8 @@ public class BoardColumnService {
         Board board = findBoard(requestDto.getBoardId());
 
         Long position = calculatePosition(requestDto.getBoardId(), requestDto.getPosition());
-        BoardColumn savedBoardColumn = boardColumnRepository.save(new BoardColumn(requestDto.getColumnName(), position, board));
+        BoardColumn savedBoardColumn = boardColumnRepository.save(
+            new BoardColumn(requestDto.getColumnName(), position, board));
 
         return savedBoardColumn.getId();
     }
@@ -70,7 +80,6 @@ public class BoardColumnService {
     }
 
 
-
     @Transactional
     @WithDistributedLock(lockName = "#boardColumnId")
     @CacheEvict(value = "columns", key = "#requestDto.boardId", allEntries = true)
@@ -89,7 +98,8 @@ public class BoardColumnService {
         BoardColumn boardColumn = findColumn(boardColumnId);
         if (!Objects.equals(boardColumn.getBoard().getOwner().getId(), user.getId())) {
             throw new IllegalArgumentException("컬럼의 삭제는 보드의 주인만 가능합니다.");
-        };
+        }
+        ;
         boardColumnRepository.delete(boardColumn);
     }
 
@@ -115,7 +125,8 @@ public class BoardColumnService {
             requestedPosition = maxPosition + 2;
         }
 
-        Long nextPosition = boardColumnRepositoryQuery.findColumnByPosition(boardId, requestedPosition);
+        Long nextPosition = boardColumnRepositoryQuery.findColumnByPosition(boardId,
+            requestedPosition);
         Long previousPosition = (requestedPosition == 1) ? 0 : // 이전 포지션의 컬럼이 없다면 0으로 설정
             boardColumnRepositoryQuery.findColumnByPosition(boardId, requestedPosition - 1);
 

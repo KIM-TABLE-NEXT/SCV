@@ -8,6 +8,7 @@ import lombok.Setter;
 @Getter
 @AllArgsConstructor
 public class CardMemberStatusResponse {
+
     private int code;
     private String status;
     private Long cardId;

@@ -22,28 +22,29 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Getter
 public class Comment {
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
 
-  @Column(name = "comment")
-  private String content;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "card_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-  private Card card;
+    @Column(name = "comment")
+    private String content;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-  private User user;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "card_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    private Card card;
 
-  public Comment(CommentRequest commentRequest, User user, Card card){
-    this.content = commentRequest.getContent();
-    this.user = user;
-    this.card = card;
-  }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    private User user;
 
-  public void update(String content) {
-    this.content = content;
-  }
+    public Comment(CommentRequest commentRequest, User user, Card card) {
+        this.content = commentRequest.getContent();
+        this.user = user;
+        this.card = card;
+    }
+
+    public void update(String content) {
+        this.content = content;
+    }
 }

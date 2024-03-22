@@ -20,46 +20,47 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Getter
 public class Board {
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
 
-  @Column(name = "board_name")
-  private String name;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  @Column(nullable = false)
-  private String description;
+    @Column(name = "board_name")
+    private String name;
 
-  @Column(nullable = false)
-  private String color;
+    @Column(nullable = false)
+    private String description;
 
-  @Column(nullable = false)
-  private boolean state;
+    @Column(nullable = false)
+    private String color;
 
-  @ManyToOne
-  @JoinColumn(name="owner_id",nullable = false,foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-  private User owner;
+    @Column(nullable = false)
+    private boolean state;
 
-  @Builder
-  public Board(String name, String description, String color, User owner) {
-    this.name = name;
-    this.description = description;
-    this.color = color;
-    this.state = true;
-    this.owner = owner;
-  }
+    @ManyToOne
+    @JoinColumn(name = "owner_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    private User owner;
 
-  public Board(Long boardId) {
-    this.id = boardId;
-  }
+    @Builder
+    public Board(String name, String description, String color, User owner) {
+        this.name = name;
+        this.description = description;
+        this.color = color;
+        this.state = true;
+        this.owner = owner;
+    }
 
-  public void updateBoard(String name, String description, String color) {
-    this.name = name;
-    this.description = description;
-    this.color = color;
-  }
+    public Board(Long boardId) {
+        this.id = boardId;
+    }
 
-  public void deleteBoard() {
-    this.state = false;
-  }
+    public void updateBoard(String name, String description, String color) {
+        this.name = name;
+        this.description = description;
+        this.color = color;
+    }
+
+    public void deleteBoard() {
+        this.state = false;
+    }
 }

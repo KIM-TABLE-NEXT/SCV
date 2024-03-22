@@ -1,6 +1,7 @@
 package com.sparta.scv.aop;
 
 import com.sparta.scv.annotation.WithDistributedLock;
+import java.util.concurrent.TimeUnit;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -8,8 +9,6 @@ import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.concurrent.TimeUnit;
 
 @Aspect
 @Component
@@ -23,7 +22,8 @@ public class DistributedLockAop {
     }
 
     @Around("@annotation(withDistributedLock)")
-    public Object aroundAdvice(ProceedingJoinPoint joinPoint, WithDistributedLock withDistributedLock) throws Throwable {
+    public Object aroundAdvice(ProceedingJoinPoint joinPoint,
+        WithDistributedLock withDistributedLock) throws Throwable {
         String lockKey = withDistributedLock.lockName();
         long waitTime = withDistributedLock.waitTime();
         long leaseTime = withDistributedLock.leaseTime();

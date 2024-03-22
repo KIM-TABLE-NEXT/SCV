@@ -1,4 +1,4 @@
-package com.sparta.scv.boardcolumn;
+package com.sparta.scv.boardcolumn.dto;
 
 import lombok.Getter;
 import lombok.Setter;

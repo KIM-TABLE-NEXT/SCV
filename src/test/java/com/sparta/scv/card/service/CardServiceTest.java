@@ -1,17 +1,11 @@
 package com.sparta.scv.card.service;
 
-import com.sparta.scv.board.dto.BoardRequest;
 import com.sparta.scv.board.entity.Board;
 import com.sparta.scv.board.repository.BoardRepository;
-import com.sparta.scv.board.service.BoardService;
-import com.sparta.scv.boardcolumn.BoardColumn;
-import com.sparta.scv.boardcolumn.BoardColumnRepository;
-import com.sparta.scv.boardcolumn.BoardColumnRequestDto;
-import com.sparta.scv.boardcolumn.BoardColumnService;
+import com.sparta.scv.boardcolumn.entity.BoardColumn;
+import com.sparta.scv.boardcolumn.repository.BoardColumnRepository;
 import com.sparta.scv.boardmember.entity.BoardMember;
 import com.sparta.scv.boardmember.repository.BoardMemberRepository;
-import com.sparta.scv.boardmember.service.BoardMemberService;
-import com.sparta.scv.card.dto.request.CardRequest;
 import com.sparta.scv.card.dto.request.CardUpdateRequest;
 import com.sparta.scv.card.entity.Card;
 import com.sparta.scv.card.repository.CardRepository;
@@ -20,17 +14,14 @@ import com.sparta.scv.user.repository.UserRepository;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import org.aspectj.lang.annotation.Before;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 public class CardServiceTest {
+
     @Autowired
     private CardService cardService;
     @Autowired
@@ -45,16 +36,15 @@ public class CardServiceTest {
     private UserRepository userRepository;
 
 
-
-
     @AfterEach
-    void printCard(){
+    void printCard() {
         Card card = cardRepository.findById(1L).orElseThrow();
         System.out.println("제목 : " + card.getTitle());
         System.out.println("내용 : " + card.getDescription());
     }
+
     @Test
-    void setUp(){
+    void setUp() {
         User user = new User(1L, "username", "password", "nickname", "department", "company");
         userRepository.save(user);
         Board board = new Board("Board name", "Board description", "Board color", user);
@@ -63,11 +53,13 @@ public class CardServiceTest {
         boardMemberRepository.save(boardMember);
         BoardColumn boardColumn = new BoardColumn("Column name", 1L, board);
         boardColumnRepository.save(boardColumn);
-        Card card = new Card(1L, "Card title", "Card description", "Card color", "Start date", "End date", boardColumn, user);
+        Card card = new Card(1L, "Card title", "Card description", "Card color", "Start date",
+            "End date", boardColumn, user);
         cardRepository.save(card);
     }
+
     @Test
-    public void updateCardConcurrencyTest() throws InterruptedException{
+    public void updateCardConcurrencyTest() throws InterruptedException {
         User user = new User(1L);
         int numberOfThreads = 10;
         // 쓰레드 생성
@@ -77,7 +69,8 @@ public class CardServiceTest {
 
         for (int i = 1; i <= numberOfThreads; i++) {
             // 각 쓰레드에서 사용할 요청 생성
-            CardUpdateRequest cardUpdateRequest = new CardUpdateRequest(1L, "Update Name " + i, "Update Description " + i, "Update Color " + i, "startDate", "endDate");
+            CardUpdateRequest cardUpdateRequest = new CardUpdateRequest(1L, "Update Name " + i,
+                "Update Description " + i, "Update Color " + i, "startDate", "endDate");
 
             int finalI = i;
             executorService.submit(() -> {

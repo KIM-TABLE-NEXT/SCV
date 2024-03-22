@@ -8,6 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CardMemberResponse {
+
     private Long cardId;
     private Long memberId;
 

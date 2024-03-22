@@ -29,30 +29,33 @@ public class CommentService {
         user = getUserById(user.getId());
         Card card = getCardById(commentRequest.getCardId());
 
-        Comment comment = commentRepository.save(new Comment(commentRequest,user,card));
-        return new CommentStatusResponse(201, "CREATED",comment.getId());
+        Comment comment = commentRepository.save(new Comment(commentRequest, user, card));
+        return new CommentStatusResponse(201, "CREATED", comment.getId());
     }
 
     public List<CommentResponse> getComment(CommentIdRequest commentIdRequest) {
         List<Comment> commentList = commentRepository.findAllByCardId(commentIdRequest.getCardId());
         List<CommentResponse> commentResponseList = new ArrayList<>();
 
-        for(Comment comment : commentList)
+        for (Comment comment : commentList) {
             commentResponseList.add(new CommentResponse(comment.getId(), comment.getContent()));
+        }
 
         return commentResponseList;
     }
 
     @Transactional
-    public CommentStatusResponse updateComment(Long commentId, CommentRequest commentRequest, User user) {
+    public CommentStatusResponse updateComment(Long commentId, CommentRequest commentRequest,
+        User user) {
         Comment comment = getCommentById(commentId);
         user = getUserById(user.getId());
 
-        if(!user.getId().equals(comment.getUser().getId()))
+        if (!user.getId().equals(comment.getUser().getId())) {
             throw new IllegalArgumentException("해당 댓글을 수정할 권한이 없습니다.");
+        }
 
         comment.update(commentRequest.getContent());
-        return new CommentStatusResponse(201,"OK",comment.getId());
+        return new CommentStatusResponse(201, "OK", comment.getId());
     }
 
     @Transactional
@@ -60,28 +63,29 @@ public class CommentService {
         Comment comment = getCommentById(commentId);
         user = getUserById(user.getId());
 
-        if(!user.getId().equals(comment.getUser().getId()))
+        if (!user.getId().equals(comment.getUser().getId())) {
             throw new IllegalArgumentException("해당 댓글을 삭제할 권한이 없습니다.");
+        }
 
         commentRepository.deleteById(comment.getId());
-        return new CommentStatusResponse(200,"OK",comment.getId());
+        return new CommentStatusResponse(200, "OK", comment.getId());
     }
 
-    public Card getCardById(Long cardId){
+    public Card getCardById(Long cardId) {
         return cardRepository.findById(cardId).orElseThrow(
-            ()-> new NullPointerException("해당 카드가 존재하지 않습니다.")
+            () -> new NullPointerException("해당 카드가 존재하지 않습니다.")
         );
     }
 
-    public User getUserById(Long userId){
+    public User getUserById(Long userId) {
         return userRepository.findById(userId).orElseThrow(
-            ()-> new NullPointerException("해당 유저가 존재하지 않습니다.")
+            () -> new NullPointerException("해당 유저가 존재하지 않습니다.")
         );
     }
 
-    public Comment getCommentById(Long commentId){
+    public Comment getCommentById(Long commentId) {
         return commentRepository.findById(commentId).orElseThrow(
-            ()-> new NullPointerException("해당 댓글이 존재하지 않습니다.")
+            () -> new NullPointerException("해당 댓글이 존재하지 않습니다.")
         );
     }
 }

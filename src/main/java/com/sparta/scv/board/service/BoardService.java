@@ -9,7 +9,6 @@ import com.sparta.scv.boardmember.repository.BoardMemberRepository;
 import com.sparta.scv.user.entity.User;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
@@ -48,24 +47,10 @@ public class BoardService {
 
         Board board = getBoardById(boardId);
 
-        RLock lock = redissonClient.getFairLock("board:" + boardId);
-        try {
-            // tryLock 메소드를 사용하여 10초 동안 락을 획득 시도, 최대 60초 동안 락 유지
-            if (lock.tryLock(10, 60, TimeUnit.SECONDS)) {
-                try {
-                    // 락을 성공적으로 획득한 경우의 처리
-                    checkBoardStateIsTrue(board);
-                    validateBoardOwner(user, board);
-                    updateBoardAttributes(board, boardRequest);
-                } finally {
-                    lock.unlock();
-                }
-            } else {
-                throw new IllegalArgumentException("다른 유저가 접근중에 있습니다. 다시 시도해 주세요");
-            }
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        checkBoardStateIsTrue(board);
+        validateBoardOwner(user, board);
+        updateBoardAttributes(board, boardRequest);
+
         return board.getId();
     }
 

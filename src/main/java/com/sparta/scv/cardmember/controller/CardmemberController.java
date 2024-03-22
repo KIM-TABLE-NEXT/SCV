@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@Tag(name = "Cardmember", description = "Cardmember API")
+@Tag(name = "Cardmember 관리", description = "Cardmember 관리에 관련된 API")
 @RequiredArgsConstructor
 @RequestMapping("/v1/cardmembers")
 public class CardmemberController {
@@ -31,23 +32,28 @@ public class CardmemberController {
     @BoardMemberOnly
     @PostMapping
     @Operation(summary = "작업자 추가", description = "작업자를 추가한다.")
-    public ResponseEntity<CardMemberStatusResponse> createCardMember(@RequestBody CardMemberRequest cardMemberRequest, @AuthenticationPrincipal
-    UserDetailsImpl userDetails){
-        return ResponseEntity.status(200).body(cardmemberService.createCardMember(cardMemberRequest, userDetails.getUser()));
+    public ResponseEntity<CardMemberStatusResponse> createCardMember(
+        @RequestBody CardMemberRequest cardMemberRequest, @AuthenticationPrincipal
+    UserDetailsImpl userDetails) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+            .body(cardmemberService.createCardMember(cardMemberRequest, userDetails.getUser()));
     }
 
     @BoardMemberOnly
     @GetMapping
     @Operation(summary = "작업자 조회", description = "카드 ID를 통해 작업자를 조회한다.")
-    public List<CardMemberResponse> getCardMember(@RequestBody CardMemberIdRequest cardMemberIdRequest){
+    public List<CardMemberResponse> getCardMember(
+        @RequestBody CardMemberIdRequest cardMemberIdRequest) {
         return cardmemberService.getCardMember(cardMemberIdRequest);
     }
 
     @BoardMemberOnly
     @DeleteMapping
     @Operation(summary = "작업자 조회", description = "카드 ID를 통해 작업자를 삭제한다.")
-    public ResponseEntity<CardMemberStatusResponse> deleteCardMember(@RequestBody CardMemberRequest cardMemberRequest, @AuthenticationPrincipal
-    UserDetailsImpl userDetails){
-        return ResponseEntity.status(200).body(cardmemberService.deleteCardMember(cardMemberRequest, userDetails.getUser()));
+    public ResponseEntity<CardMemberStatusResponse> deleteCardMember(
+        @RequestBody CardMemberRequest cardMemberRequest, @AuthenticationPrincipal
+    UserDetailsImpl userDetails) {
+        return ResponseEntity.status(HttpStatus.OK)
+            .body(cardmemberService.deleteCardMember(cardMemberRequest, userDetails.getUser()));
     }
 }

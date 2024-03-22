@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class JPAConfig {
+
     @PersistenceContext
     public EntityManager entityManager;
 

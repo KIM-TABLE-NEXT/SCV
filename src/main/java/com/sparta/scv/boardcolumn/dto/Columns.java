@@ -1,10 +1,9 @@
-package com.sparta.scv.boardcolumn;
-
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+package com.sparta.scv.boardcolumn.dto;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor

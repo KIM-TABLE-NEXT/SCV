@@ -1,13 +1,13 @@
 package com.sparta.scv.card.dto.response;
 
 import com.sparta.scv.card.entity.Card;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
 @Setter
 @Getter
 public class CardResponse {
+
     private Long cardId;
     private String title;
     private String description;
@@ -16,7 +16,7 @@ public class CardResponse {
     private String endDate;
     private String nickname;
 
-    public CardResponse(Card card){
+    public CardResponse(Card card) {
         this.cardId = card.getId();
         this.title = card.getTitle();
         this.description = card.getDescription();
