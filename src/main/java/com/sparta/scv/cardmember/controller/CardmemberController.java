@@ -49,7 +49,7 @@ public class CardmemberController {
 
     @BoardMemberOnly
     @DeleteMapping
-    @Operation(summary = "작업자 조회", description = "카드 ID를 통해 작업자를 삭제한다.")
+    @Operation(summary = "작업자 삭제", description = "카드 ID를 통해 작업자를 삭제한다.")
     public ResponseEntity<CardMemberStatusResponse> deleteCardMember(
         @RequestBody CardMemberRequest cardMemberRequest, @AuthenticationPrincipal
     UserDetailsImpl userDetails) {
