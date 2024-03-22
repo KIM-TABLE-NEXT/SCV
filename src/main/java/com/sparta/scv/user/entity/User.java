@@ -20,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Getter
 @DynamicUpdate
 @AllArgsConstructor
-
 public class User {
 
     @Id

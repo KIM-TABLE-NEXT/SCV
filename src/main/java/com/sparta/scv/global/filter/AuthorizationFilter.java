@@ -20,7 +20,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 @RequiredArgsConstructor
 public class AuthorizationFilter extends
-    OncePerRequestFilter { // OncePerRequestFilter : 요청 한번마다 필터 돌리기
+    OncePerRequestFilter { 
 
     private final JwtUtil jwtUtil;
 
