@@ -1,11 +1,14 @@
 package com.sparta.scv.board.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 @Getter
-@RequiredArgsConstructor
+@NoArgsConstructor
+@AllArgsConstructor
 public class BoardDto {
-    private final Long boardId;
-    private final String title;
+    private Long boardId;
+    private String title;
 }
